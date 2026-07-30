@@ -3,19 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cheap Gas Locator | Real-Time Fuel Finder</title>
+    <title>GasLocate.com | Real-Time Fuel Finder</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Leaflet CSS for 100% Free Interactive Maps -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.85);
-            --border-color: rgba(255, 255, 255, 0.1);
-            --text-primary: #f8fafc;
+            --bg-color: #0b1329;
+            --card-bg: rgba(15, 23, 42, 0.9);
+            --border-color: rgba(255, 255, 255, 0.12);
+            --text-primary: #ffffff;
             --text-secondary: #94a3b8;
-            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            --accent-glow: rgba(59, 130, 246, 0.3);
+            --accent-blue: #2563eb;
+            --accent-red: #dc2626;
+            --accent-gradient: linear-gradient(135deg, #dc2626 0%, #2563eb 100%);
+            --accent-glow: rgba(37, 99, 235, 0.4);
             --success-bg: rgba(16, 185, 129, 0.15);
             --success-text: #34d399;
         }
@@ -23,6 +25,9 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 10% 10%, rgba(220, 38, 38, 0.12) 0px, transparent 50%),
+                radial-gradient(at 90% 90%, rgba(37, 99, 235, 0.15) 0px, transparent 50%);
             color: var(--text-primary);
             margin: 0;
             padding: 20px;
@@ -42,10 +47,29 @@
             margin-bottom: 25px;
         }
 
+        .brand-badge {
+            display: inline-block;
+            background: rgba(220, 38, 38, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            padding: 4px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border-radius: 20px;
+            margin-bottom: 10px;
+        }
+
         h1 {
             margin: 0 0 8px 0;
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        h1 span {
+            color: #3b82f6;
         }
 
         p.subtitle {
@@ -62,7 +86,7 @@
             padding: 8px;
             border: 1px solid var(--border-color);
             border-radius: 14px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
             margin-bottom: 25px;
         }
 
@@ -89,12 +113,13 @@
             font-weight: 600;
             border-radius: 10px;
             cursor: pointer;
-            box-shadow: 0 4px 12px var(--accent-glow);
-            transition: opacity 0.2s;
+            box-shadow: 0 4px 15px var(--accent-glow);
+            transition: all 0.2s ease;
         }
 
         button:hover {
             opacity: 0.9;
+            transform: translateY(-1px);
         }
 
         .main-layout {
@@ -113,7 +138,7 @@
             height: 400px;
             border-radius: 16px;
             border: 1px solid var(--border-color);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
         }
 
         .results-panel {
@@ -137,7 +162,7 @@
         }
 
         .station-card:hover {
-            border-color: rgba(59, 130, 246, 0.4);
+            border-color: rgba(59, 130, 246, 0.5);
         }
 
         .station-info h3 {
@@ -185,8 +210,9 @@
 
 <div class="container">
     <div class="header">
-        <h1>Cheap Gas Locator</h1>
-        <p class="subtitle">Real-time local fuel pricing and interactive map layout.</p>
+        <span class="brand-badge">Live Fuel Network</span>
+        <h1>GasLocate<span>.com</span></h1>
+        <p class="subtitle">Real-time local fuel pricing and interactive area mapping.</p>
     </div>
     
     <div class="search-box">
