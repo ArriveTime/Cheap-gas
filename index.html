@@ -56,7 +56,6 @@
             margin-bottom: 12px;
         }
 
-        /* Title container with dark background so white text is readable */
         .title-container {
             background-color: #0f172a;
             display: inline-block;
@@ -230,84 +229,135 @@
     </div>
     
     <div class="search-box">
-        <input type="text" id="zipInput" placeholder="Enter 5-digit ZIP code (e.g., 90210 or 23168)..." maxlength="5">
-        <button onclick="searchGas()">Search Area</button>
+        <input type="text" id="zipInput" placeholder="Enter 5-digit ZIP code (e.g., 90210)..." maxlength="5">
+        <button onclick="searchByZip()">Search Area</button>
     </div>
 
-    <!-- Layout pre-loaded with example map and pins on landing -->
     <div class="main-layout" id="contentArea">
         <div id="map"></div>
         <div class="results-panel" id="resultsPanel">
-            <h4 id="resultsTitle">Example Stations in Area</h4>
-            <div class="station-card">
-                <div class="station-info">
-                    <h3>Costco Gas</h3>
-                    <p>100 Marketplace Dr</p>
-                    <div class="station-meta">📍 0.8 miles away</div>
-                </div>
-                <div class="price-tag">$3.15</div>
-            </div>
-            <div class="station-card">
-                <div class="station-info">
-                    <h3>Shell</h3>
-                    <p>452 Broad Street</p>
-                    <div class="station-meta">📍 1.4 miles away</div>
-                </div>
-                <div class="price-tag">$3.29</div>
-            </div>
-            <div class="station-card">
-                <div class="station-info">
-                    <h3>Chevron</h3>
-                    <p>890 West End Ave</p>
-                    <div class="station-meta">📍 2.1 miles away</div>
-                </div>
-                <div class="price-tag">$3.35</div>
-            </div>
-            <div class="station-card">
-                <div class="station-info">
-                    <h3>Exxon</h3>
-                    <p>1200 Capital Trail</p>
-                    <div class="station-meta">📍 2.8 miles away</div>
-                </div>
-                <div class="price-tag">$3.42</div>
+            <h4 id="resultsTitle">Stations in Your Area</h4>
+            <div id="stationsList">
+                <!-- Dynamic cards load here -->
             </div>
         </div>
     </div>
 </div>
 
-<!-- Leaflet JS & Pre-loaded Landing Map Script -->
+<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
-    let map = L.map('map').setView([37.5407, -77.4360], 13);
+    let map = null;
+    let markersLayer = null;
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
+    // Initialize map on page load
+    function initMap(lat, lng, zoom = 13, titleText = "Local Stations") {
+        if (!map) {
+            map = L.map('map').setView([lat, lng], zoom);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+            markersLayer = L.layerGroup().addTo(map);
+        } else {
+            map.setView([lat, lng], zoom);
+            markersLayer.clearLayers();
+        }
 
-    const mockStations = [
-        { name: "Costco Gas", address: "100 Marketplace Dr", distance: "0.8 miles away", price: "$3.15", lat: 37.5457, lng: -77.4460 },
-        { name: "Shell", address: "452 Broad Street", distance: "1.4 miles away", price: "$3.29", lat: 37.5357, lng: -77.4260 },
-        { name: "Chevron", address: "890 West End Ave", distance: "2.1 miles away", price: "$3.35", lat: 37.5507, lng: -77.4160 },
-        { name: "Exxon", address: "1200 Capital Trail", distance: "2.8 miles away", price: "$3.42", lat: 37.5257, lng: -77.4560 }
-    ];
+        // Add pin for user's exact or searched location
+        L.marker([lat, lng], {
+            title: "Your Location"
+        }).addTo(markersLayer)
+          .bindPopup("<b>Your Location / Center</b>").openPopup();
+    }
 
-    mockStations.forEach(station => {
-        L.marker([station.lat, station.lng]).addTo(map)
-            .bindPopup(`<b>${station.name}</b><br>Price: ${station.price}<br>${station.address}`);
+    // Automatically detect user's current GPS location on page load
+    window.addEventListener('DOMContentLoaded', () => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const userLat = position.coords.latitude;
+                    const userLng = position.coords.longitude;
+                    initMap(userLat, userLng, 14);
+                    loadStationsAround(userLat, userLng, "Your GPS Location");
+                },
+                (error) => {
+                    // Fallback default coordinates if user blocks location or on desktop
+                    initMap(37.5407, -77.4360, 13);
+                    loadStationsAround(37.5407, -77.4360, "Default Area");
+                }
+            );
+        } else {
+            initMap(37.5407, -77.4360, 13);
+            loadStationsAround(37.5407, -77.4360, "Default Area");
+        }
     });
 
-    function searchGas() {
+    // Function when user types a zip code and clicks search
+    async function searchByZip() {
         const zipCode = document.getElementById('zipInput').value.trim();
-        const resultsTitle = document.getElementById('resultsTitle');
-
         if (zipCode.length !== 5 || isNaN(zipCode)) {
             alert('Please enter a valid 5-digit zip code.');
             return;
         }
 
-        resultsTitle.innerText = `Stations near ${zipCode} (Live Preview)`;
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.getElementById('resultsTitle').innerText = `Locating ZIP ${zipCode}...`;
+
+        try {
+            // Free Geocoding API from OpenStreetMap to translate Zip code to Lat/Lng
+            const response = await fetch(`https://nominatim.openstreetmap.org/search?postalcode=${zipCode}&country=US&format=json&limit=1`);
+            const data = await response.json();
+
+            if (data && data.length > 0) {
+                const lat = parseFloat(data[0].lat);
+                const lon = parseFloat(data[0].lon);
+
+                initMap(lat, lon, 13);
+                loadStationsAround(lat, lon, `ZIP Code ${zipCode}`);
+            } else {
+                alert('Could not find coordinates for this ZIP code. Please try another.');
+            }
+        } catch (err) {
+            console.error('Geocoding error:', err);
+            alert('Error looking up zip code.');
+        }
+    }
+
+    // Generate stations around the given coordinates with pins on the map
+    function loadStationsAround(centerLat, centerLng, locationName) {
+        document.getElementById('resultsTitle').innerText = `Stations near ${locationName}`;
+        
+        // Generate dynamic mock stations offset slightly from center point
+        const mockStations = [
+            { name: "Costco Gas", address: "100 Marketplace Dr", distance: "0.6 miles away", price: "$3.15", latOffset: 0.008, lngOffset: 0.006 },
+            { name: "Shell", address: "452 Broad Street", distance: "1.2 miles away", price: "$3.29", latOffset: -0.007, lngOffset: 0.009 },
+            { name: "Chevron", address: "890 West End Ave", distance: "1.8 miles away", price: "$3.35", latOffset: 0.012, lngOffset: -0.005 },
+            { name: "Exxon", address: "1200 Capital Trail", distance: "2.4 miles away", price: "$3.42", latOffset: -0.010, lngOffset: -0.011 }
+        ];
+
+        let listHtml = '';
+        mockStations.forEach(station => {
+            const stationLat = centerLat + station.latOffset;
+            const stationLng = centerLng + station.lngOffset;
+
+            // Add station pin to map
+            L.marker([stationLat, stationLng]).addTo(markersLayer)
+                .bindPopup(`<b>${station.name}</b><br>Price: ${station.price}<br>${station.address}`);
+
+            // Add card to panel
+            listHtml += `
+                <div class="station-card">
+                    <div class="station-info">
+                        <h3>${station.name}</h3>
+                        <p>${station.address}</p>
+                        <div class="station-meta">📍 ${station.distance}</div>
+                    </div>
+                    <div class="price-tag">${station.price}</div>
+                </div>
+            `;
+        });
+
+        document.getElementById('stationsList').innerHTML = listHtml;
     }
 </script>
 </body>
