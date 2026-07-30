@@ -306,8 +306,30 @@
           .bindPopup("<b>Your Location / Center</b>").openPopup();
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-        // Fetch live visitor counter starting fresh from your private key
+    // Structured JSON Visitor Logger & Counter Init
+    async function logVisitorAndInit() {
+        try {
+            // Fetch geographic metadata for JSON logging
+            const geoRes = await fetch('https://ipapi.co/json/');
+            const geoData = await geoRes.json();
+
+            const visitorRecord = {
+                timestamp: new Date().toISOString(),
+                website: "GasLocate.com",
+                visitor_ip: geoData.ip || "Unknown",
+                city: geoData.city || "Unknown",
+                region: geoData.region || "Unknown",
+                country: geoData.country_name || "Unknown",
+                user_agent: navigator.userAgent
+            };
+
+            // Logs structured JSON directly to browser console for review
+            console.log("Visitor JSON Record Captured:", JSON.stringify(visitorRecord, null, 2));
+        } catch (err) {
+            console.error("JSON Logging error:", err);
+        }
+
+        // Fetch live visitor counter
         fetch('https://api.countapi.xyz/hit/gaslocate-robert-2026/visits')
             .then(response => response.json())
             .then(data => {
@@ -317,8 +339,12 @@
                 console.error('Counter error:', error);
                 document.getElementById('visitCount').innerText = '1';
             });
+    }
 
-        // Initialize Geolocation
+    window.addEventListener('DOMContentLoaded', () => {
+        logVisitorAndInit();
+
+        // Initialize Geolocation Map
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
