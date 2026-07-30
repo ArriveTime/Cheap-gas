@@ -226,27 +226,9 @@
             font-size: 13px;
         }
 
-        .visitor-counter {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: var(--card-bg);
-            padding: 6px 14px;
-            border-radius: 20px;
-            border: 1px solid var(--border-color);
-            font-weight: 500;
-            color: var(--text-primary);
-            margin-top: 8px;
-        }
-
-        .visitor-counter span {
-            color: var(--accent-blue);
-            font-weight: 700;
-        }
-
         .admin-link {
-            display: block;
-            margin-top: 10px;
+            display: inline-block;
+            margin-top: 8px;
             background: none;
             border: none;
             color: var(--text-secondary);
@@ -351,9 +333,6 @@
 
 <div class="footer">
     <div>GasLocate.com &copy; 2026 &bull; All Rights Reserved</div>
-    <div class="visitor-counter">
-        👁️ Total Visits: <span id="visitCount">Loading...</span>
-    </div>
     <div>
         <button class="admin-link" onclick="openAdminPanel()">⚙️ Admin Visitor Log</button>
     </div>
@@ -410,17 +389,13 @@
                 country: geoData.country_name || "Unknown"
             };
 
-            // Save to local storage array so admin panel can read it
             let storedLogs = JSON.parse(localStorage.getItem('gaslocate_visitors') || '[]');
-            // Add new visitor to top of list
             storedLogs.unshift(visitorRecord);
-            // Keep max last 100 records
             if (storedLogs.length > 100) storedLogs.pop();
             localStorage.setItem('gaslocate_visitors', JSON.stringify(storedLogs));
 
         } catch (err) {
             console.error("Logging error:", err);
-            // Fallback record if offline
             let storedLogs = JSON.parse(localStorage.getItem('gaslocate_visitors') || '[]');
             storedLogs.unshift({
                 timestamp: new Date().toLocaleString(),
@@ -431,22 +406,11 @@
             });
             localStorage.setItem('gaslocate_visitors', JSON.stringify(storedLogs));
         }
-
-        // Fetch public counter display
-        fetch('https://api.countapi.xyz/hit/gaslocate-robert-2026/visits')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('visitCount').innerText = data.value.toLocaleString();
-            })
-            .catch(error => {
-                document.getElementById('visitCount').innerText = '1';
-            });
     }
 
     // Admin Panel Password Logic
     function openAdminPanel() {
         const password = prompt("Enter Admin Password:");
-        // Default password is set to admin123 (you can change this text below)
         if (password === "admin123") {
             const modal = document.getElementById('adminModal');
             const container = document.getElementById('visitorLogContainer');
