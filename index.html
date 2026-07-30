@@ -217,7 +217,6 @@
             text-align: center;
         }
 
-        /* Footer Visitor Counter Style */
         .footer {
             margin-top: 40px;
             text-align: center;
@@ -288,7 +287,6 @@
     let map = null;
     let markersLayer = null;
 
-    // Initialize map on page load
     function initMap(lat, lng, zoom = 13) {
         if (!map) {
             map = L.map('map').setView([lat, lng], zoom);
@@ -308,20 +306,19 @@
           .bindPopup("<b>Your Location / Center</b>").openPopup();
     }
 
-    // Automatically fetch visitor count and GPS location on page load
     window.addEventListener('DOMContentLoaded', () => {
-        // 1. Fetch live visitor counter
-        fetch('https://api.countapi.xyz/hit/gaslocate.com/visits')
+        // Fetch live visitor counter starting fresh from your private key
+        fetch('https://api.countapi.xyz/hit/gaslocate-robert-2026/visits')
             .then(response => response.json())
             .then(data => {
                 document.getElementById('visitCount').innerText = data.value.toLocaleString();
             })
             .catch(error => {
                 console.error('Counter error:', error);
-                document.getElementById('visitCount').innerText = '1,245'; // Fallback display if offline
+                document.getElementById('visitCount').innerText = '1';
             });
 
-        // 2. Initialize Geolocation
+        // Initialize Geolocation
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
@@ -341,7 +338,6 @@
         }
     });
 
-    // Function when user types a zip code and clicks search
     async function searchByZip() {
         const zipCode = document.getElementById('zipInput').value.trim();
         if (zipCode.length !== 5 || isNaN(zipCode)) {
@@ -370,7 +366,6 @@
         }
     }
 
-    // Generate stations around the given coordinates with pins on the map
     function loadStationsAround(centerLat, centerLng, locationName) {
         document.getElementById('resultsTitle').innerText = `Stations near ${locationName}`;
         
