@@ -1,1 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cheapest Gas by Zip Code</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 600px; margin: 40px auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #1a73e8; margin-bottom: 10px; }
+        p.subtitle { text-align: center; color: #666; margin-top: 0; }
+        .search-box { display: flex; gap: 10px; margin-top: 20px; }
+        input[type="text"] { flex: 1; padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 6px; }
+        button { padding: 12px 20px; font-size: 16px; background-color: #1a73e8; color: white; border: none; border-radius: 6px; cursor: pointer; }
+        button:hover { background-color: #1557b0; }
+        #results { margin-top: 25px; }
+        .station-card { background: #fafafa; border: 1px solid #eee; padding: 15px; border-radius: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .station-info h3 { margin: 0 0 5px 0; font-size: 18px; color: #202124; }
+        .station-info p { margin: 0; color: #5f6368; font-size: 14px; }
+        .price-tag { font-size: 22px; font-weight: bold; color: #137333; background: #e6f4ea; padding: 8px 12px; border-radius: 6px; }
+    </style>
+</head>
+<body>
 
+<div class="container">
+    <h1>Cheapest Gas Finder</h1>
+    <p class="subtitle">Enter your zip code to find the lowest local fuel prices in real time.</p>
+    
+    <div class="search-box">
+        <input type="text" id="zipInput" placeholder="Enter Zip Code (e.g., 90210)" maxlength="5">
+        <button onclick="searchGas()">Search</button>
+    </div>
+
+    <div id="results">
+        <!-- Results will load here -->
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
