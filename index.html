@@ -4,30 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GasLocate.com | Real-Time Fuel Finder</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Leaflet CSS for 100% Free Interactive Maps -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <style>
         :root {
-            --bg-color: #0b1329;
-            --card-bg: rgba(15, 23, 42, 0.9);
-            --border-color: rgba(255, 255, 255, 0.12);
-            --text-primary: #ffffff;
-            --text-secondary: #94a3b8;
-            --accent-blue: #2563eb;
+            --bg-color: #ffffff;
+            --card-bg: #f8fafc;
+            --border-color: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
             --accent-red: #dc2626;
-            --accent-gradient: linear-gradient(135deg, #dc2626 0%, #2563eb 100%);
-            --accent-glow: rgba(37, 99, 235, 0.4);
-            --success-bg: rgba(16, 185, 129, 0.15);
-            --success-text: #34d399;
+            --accent-blue: #2563eb;
+            --success-bg: #ecfdf5;
+            --success-text: #059669;
         }
 
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-color);
-            background-image: 
-                radial-gradient(at 10% 10%, rgba(220, 38, 38, 0.12) 0px, transparent 50%),
-                radial-gradient(at 90% 90%, rgba(37, 99, 235, 0.15) 0px, transparent 50%);
             color: var(--text-primary);
             margin: 0;
             padding: 20px;
@@ -39,7 +34,7 @@
 
         .container {
             width: 100%;
-            max-width: 900px;
+            max-width: 950px;
         }
 
         .header {
@@ -49,63 +44,81 @@
 
         .brand-badge {
             display: inline-block;
-            background: rgba(220, 38, 38, 0.15);
-            color: #ef4444;
-            border: 1px solid rgba(220, 38, 38, 0.3);
+            background: #fef2f2;
+            color: var(--accent-red);
+            border: 1px solid #fee2e2;
             padding: 4px 12px;
             font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1.5px;
             border-radius: 20px;
+            margin-bottom: 12px;
+        }
+
+        /* Title container with dark background so white text is readable */
+        .title-container {
+            background-color: #0f172a;
+            display: inline-block;
+            padding: 12px 28px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             margin-bottom: 10px;
         }
 
         h1 {
-            margin: 0 0 8px 0;
-            font-size: 32px;
-            font-weight: 700;
+            margin: 0;
+            font-size: 36px;
+            font-weight: 800;
             letter-spacing: -0.5px;
         }
 
-        h1 span {
-            color: #3b82f6;
+        h1 .gas-red {
+            color: var(--accent-red);
+        }
+
+        h1 .locate-white {
+            color: #ffffff;
+        }
+
+        h1 .com-blue {
+            color: var(--accent-blue);
         }
 
         p.subtitle {
             margin: 0;
             color: var(--text-secondary);
-            font-size: 14px;
+            font-size: 15px;
         }
 
         .search-box {
             display: flex;
             gap: 10px;
             background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            padding: 8px;
+            padding: 10px;
             border: 1px solid var(--border-color);
             border-radius: 14px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             margin-bottom: 25px;
         }
 
         input[type="text"] {
             flex: 1;
-            background: transparent;
-            border: none;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
             padding: 12px 16px;
             font-size: 16px;
             color: var(--text-primary);
+            border-radius: 10px;
             outline: none;
         }
 
-        input[type="text"]::placeholder {
-            color: var(--text-secondary);
+        input[type="text"]:focus {
+            border-color: var(--accent-blue);
         }
 
         button {
-            background: var(--accent-gradient);
+            background: var(--accent-blue);
             color: white;
             border: none;
             padding: 12px 24px;
@@ -113,13 +126,12 @@
             font-weight: 600;
             border-radius: 10px;
             cursor: pointer;
-            box-shadow: 0 4px 15px var(--accent-glow);
-            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+            transition: background 0.2s;
         }
 
         button:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
+            background: #1d4ed8;
         }
 
         .main-layout {
@@ -135,19 +147,25 @@
         }
 
         #map {
-            height: 400px;
+            height: 420px;
             border-radius: 16px;
             border: 1px solid var(--border-color);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
         .results-panel {
             display: flex;
             flex-direction: column;
             gap: 12px;
-            max-height: 400px;
+            max-height: 420px;
             overflow-y: auto;
             padding-right: 4px;
+        }
+
+        .results-panel h4 {
+            margin: 0 0 2px 0;
+            font-size: 15px;
+            color: var(--text-primary);
         }
 
         .station-card {
@@ -158,17 +176,19 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: border-color 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
         .station-card:hover {
-            border-color: rgba(59, 130, 246, 0.5);
+            border-color: var(--accent-blue);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
         .station-info h3 {
             margin: 0 0 4px 0;
             font-size: 16px;
             font-weight: 600;
+            color: var(--text-primary);
         }
 
         .station-info p {
@@ -180,7 +200,7 @@
         .station-meta {
             margin-top: 6px;
             font-size: 12px;
-            color: #60a5fa;
+            color: var(--accent-blue);
             font-weight: 500;
         }
 
@@ -191,18 +211,8 @@
             background: var(--success-bg);
             padding: 6px 12px;
             border-radius: 10px;
-            border: 1px solid rgba(52, 211, 153, 0.2);
+            border: 1px solid #a7f3d0;
             text-align: center;
-        }
-
-        .initial-message {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-secondary);
-            background: var(--card-bg);
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
         }
     </style>
 </head>
@@ -211,7 +221,11 @@
 <div class="container">
     <div class="header">
         <span class="brand-badge">Live Fuel Network</span>
-        <h1>GasLocate<span>.com</span></h1>
+        <div>
+            <div class="title-container">
+                <h1><span class="gas-red">Gas</span><span class="locate-white">Locate</span><span class="com-blue">.com</span></h1>
+            </div>
+        </div>
         <p class="subtitle">Real-time local fuel pricing and interactive area mapping.</p>
     </div>
     
@@ -220,15 +234,81 @@
         <button onclick="searchGas()">Search Area</button>
     </div>
 
+    <!-- Layout pre-loaded with example map and pins on landing -->
     <div class="main-layout" id="contentArea">
-        <div class="initial-message">
-            <h3>Enter a ZIP code above to load the live map and local station prices.</h3>
+        <div id="map"></div>
+        <div class="results-panel" id="resultsPanel">
+            <h4 id="resultsTitle">Example Stations in Area</h4>
+            <div class="station-card">
+                <div class="station-info">
+                    <h3>Costco Gas</h3>
+                    <p>100 Marketplace Dr</p>
+                    <div class="station-meta">📍 0.8 miles away</div>
+                </div>
+                <div class="price-tag">$3.15</div>
+            </div>
+            <div class="station-card">
+                <div class="station-info">
+                    <h3>Shell</h3>
+                    <p>452 Broad Street</p>
+                    <div class="station-meta">📍 1.4 miles away</div>
+                </div>
+                <div class="price-tag">$3.29</div>
+            </div>
+            <div class="station-card">
+                <div class="station-info">
+                    <h3>Chevron</h3>
+                    <p>890 West End Ave</p>
+                    <div class="station-meta">📍 2.1 miles away</div>
+                </div>
+                <div class="price-tag">$3.35</div>
+            </div>
+            <div class="station-card">
+                <div class="station-info">
+                    <h3>Exxon</h3>
+                    <p>1200 Capital Trail</p>
+                    <div class="station-meta">📍 2.8 miles away</div>
+                </div>
+                <div class="price-tag">$3.42</div>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Leaflet JS -->
+<!-- Leaflet JS & Pre-loaded Landing Map Script -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script src="script.js"></script>
+<script>
+    let map = L.map('map').setView([37.5407, -77.4360], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const mockStations = [
+        { name: "Costco Gas", address: "100 Marketplace Dr", distance: "0.8 miles away", price: "$3.15", lat: 37.5457, lng: -77.4460 },
+        { name: "Shell", address: "452 Broad Street", distance: "1.4 miles away", price: "$3.29", lat: 37.5357, lng: -77.4260 },
+        { name: "Chevron", address: "890 West End Ave", distance: "2.1 miles away", price: "$3.35", lat: 37.5507, lng: -77.4160 },
+        { name: "Exxon", address: "1200 Capital Trail", distance: "2.8 miles away", price: "$3.42", lat: 37.5257, lng: -77.4560 }
+    ];
+
+    mockStations.forEach(station => {
+        L.marker([station.lat, station.lng]).addTo(map)
+            .bindPopup(`<b>${station.name}</b><br>Price: ${station.price}<br>${station.address}`);
+    });
+
+    function searchGas() {
+        const zipCode = document.getElementById('zipInput').value.trim();
+        const resultsTitle = document.getElementById('resultsTitle');
+
+        if (zipCode.length !== 5 || isNaN(zipCode)) {
+            alert('Please enter a valid 5-digit zip code.');
+            return;
+        }
+
+        resultsTitle.innerText = `Stations near ${zipCode} (Live Preview)`;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
 </body>
 </html>
