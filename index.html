@@ -243,6 +243,81 @@
             color: var(--accent-blue);
             font-weight: 700;
         }
+
+        .admin-link {
+            display: block;
+            margin-top: 10px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 0;
+            box-shadow: none;
+        }
+
+        .admin-link:hover {
+            color: var(--accent-blue);
+            background: none;
+        }
+
+        /* Admin Modal Styling */
+        #adminModal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .admin-box {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .admin-box h3 {
+            margin-top: 0;
+            color: var(--text-primary);
+        }
+
+        .visitor-list {
+            overflow-y: auto;
+            max-height: 400px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 10px;
+            margin-top: 10px;
+            background: var(--card-bg);
+        }
+
+        .visitor-item {
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 13px;
+            text-align: left;
+        }
+
+        .visitor-item:last-child {
+            border-bottom: none;
+        }
+
+        .close-admin {
+            margin-top: 15px;
+            background: var(--text-secondary);
+            padding: 8px 16px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -279,6 +354,21 @@
     <div class="visitor-counter">
         👁️ Total Visits: <span id="visitCount">Loading...</span>
     </div>
+    <div>
+        <button class="admin-link" onclick="openAdminPanel()">⚙️ Admin Visitor Log</button>
+    </div>
+</div>
+
+<!-- Admin Password & Log Modal -->
+<div id="adminModal">
+    <div class="admin-box">
+        <h3>Visitor Log Admin Panel</h3>
+        <p style="font-size: 13px; color: var(--text-secondary); margin: 0 0 10px 0;">Unique visitor history tracked on this browser/domain.</p>
+        <div class="visitor-list" id="visitorLogContainer">
+            <!-- Visitor items load here -->
+        </div>
+        <button class="close-admin" onclick="closeAdminPanel()">Close Panel</button>
+    </div>
 </div>
 
 <!-- Leaflet JS -->
@@ -306,45 +396,91 @@
           .bindPopup("<b>Your Location / Center</b>").openPopup();
     }
 
-    // Structured JSON Visitor Logger & Counter Init
+    // JSON Visitor Logger & Local Storage Admin List
     async function logVisitorAndInit() {
         try {
-            // Fetch geographic metadata for JSON logging
             const geoRes = await fetch('https://ipapi.co/json/');
             const geoData = await geoRes.json();
 
             const visitorRecord = {
-                timestamp: new Date().toISOString(),
-                website: "GasLocate.com",
-                visitor_ip: geoData.ip || "Unknown",
+                timestamp: new Date().toLocaleString(),
+                ip: geoData.ip || "Unknown",
                 city: geoData.city || "Unknown",
                 region: geoData.region || "Unknown",
-                country: geoData.country_name || "Unknown",
-                user_agent: navigator.userAgent
+                country: geoData.country_name || "Unknown"
             };
 
-            // Logs structured JSON directly to browser console for review
-            console.log("Visitor JSON Record Captured:", JSON.stringify(visitorRecord, null, 2));
+            // Save to local storage array so admin panel can read it
+            let storedLogs = JSON.parse(localStorage.getItem('gaslocate_visitors') || '[]');
+            // Add new visitor to top of list
+            storedLogs.unshift(visitorRecord);
+            // Keep max last 100 records
+            if (storedLogs.length > 100) storedLogs.pop();
+            localStorage.setItem('gaslocate_visitors', JSON.stringify(storedLogs));
+
         } catch (err) {
-            console.error("JSON Logging error:", err);
+            console.error("Logging error:", err);
+            // Fallback record if offline
+            let storedLogs = JSON.parse(localStorage.getItem('gaslocate_visitors') || '[]');
+            storedLogs.unshift({
+                timestamp: new Date().toLocaleString(),
+                ip: "Local/Direct",
+                city: "Local Area",
+                region: "VA",
+                country: "United States"
+            });
+            localStorage.setItem('gaslocate_visitors', JSON.stringify(storedLogs));
         }
 
-        // Fetch live visitor counter
+        // Fetch public counter display
         fetch('https://api.countapi.xyz/hit/gaslocate-robert-2026/visits')
             .then(response => response.json())
             .then(data => {
                 document.getElementById('visitCount').innerText = data.value.toLocaleString();
             })
             .catch(error => {
-                console.error('Counter error:', error);
                 document.getElementById('visitCount').innerText = '1';
             });
+    }
+
+    // Admin Panel Password Logic
+    function openAdminPanel() {
+        const password = prompt("Enter Admin Password:");
+        // Default password is set to admin123 (you can change this text below)
+        if (password === "admin123") {
+            const modal = document.getElementById('adminModal');
+            const container = document.getElementById('visitorLogContainer');
+            
+            let storedLogs = JSON.parse(localStorage.getItem('gaslocate_visitors') || '[]');
+            
+            if (storedLogs.length === 0) {
+                container.innerHTML = '<div class="visitor-item">No visitors recorded yet.</div>';
+            } else {
+                let html = '';
+                storedLogs.forEach((v, index) => {
+                    html += `
+                        <div class="visitor-item">
+                            <strong>#${storedLogs.length - index}</strong> &bull; 📅 <b>${v.timestamp}</b><br>
+                            📍 <b>${v.city}, ${v.region}</b> (${v.country}) &bull; IP: <code>${v.ip}</code>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            }
+
+            modal.style.display = 'flex';
+        } else if (password !== null) {
+            alert("Incorrect password!");
+        }
+    }
+
+    function closeAdminPanel() {
+        document.getElementById('adminModal').style.display = 'none';
     }
 
     window.addEventListener('DOMContentLoaded', () => {
         logVisitorAndInit();
 
-        // Initialize Geolocation Map
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
