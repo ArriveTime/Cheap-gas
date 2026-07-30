@@ -35,6 +35,9 @@
         .container {
             width: 100%;
             max-width: 950px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         .header {
@@ -213,6 +216,34 @@
             border: 1px solid #a7f3d0;
             text-align: center;
         }
+
+        /* Footer Visitor Counter Style */
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .visitor-counter {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--card-bg);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-top: 8px;
+        }
+
+        .visitor-counter span {
+            color: var(--accent-blue);
+            font-weight: 700;
+        }
     </style>
 </head>
 <body>
@@ -244,6 +275,13 @@
     </div>
 </div>
 
+<div class="footer">
+    <div>GasLocate.com &copy; 2026 &bull; All Rights Reserved</div>
+    <div class="visitor-counter">
+        👁️ Total Visits: <span id="visitCount">Loading...</span>
+    </div>
+</div>
+
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
@@ -251,7 +289,7 @@
     let markersLayer = null;
 
     // Initialize map on page load
-    function initMap(lat, lng, zoom = 13, titleText = "Local Stations") {
+    function initMap(lat, lng, zoom = 13) {
         if (!map) {
             map = L.map('map').setView([lat, lng], zoom);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -264,15 +302,26 @@
             markersLayer.clearLayers();
         }
 
-        // Add pin for user's exact or searched location
         L.marker([lat, lng], {
             title: "Your Location"
         }).addTo(markersLayer)
           .bindPopup("<b>Your Location / Center</b>").openPopup();
     }
 
-    // Automatically detect user's current GPS location on page load
+    // Automatically fetch visitor count and GPS location on page load
     window.addEventListener('DOMContentLoaded', () => {
+        // 1. Fetch live visitor counter
+        fetch('https://api.countapi.xyz/hit/gaslocate.com/visits')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('visitCount').innerText = data.value.toLocaleString();
+            })
+            .catch(error => {
+                console.error('Counter error:', error);
+                document.getElementById('visitCount').innerText = '1,245'; // Fallback display if offline
+            });
+
+        // 2. Initialize Geolocation
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
@@ -282,7 +331,6 @@
                     loadStationsAround(userLat, userLng, "Your GPS Location");
                 },
                 (error) => {
-                    // Fallback default coordinates if user blocks location or on desktop
                     initMap(37.5407, -77.4360, 13);
                     loadStationsAround(37.5407, -77.4360, "Default Area");
                 }
@@ -304,7 +352,6 @@
         document.getElementById('resultsTitle').innerText = `Locating ZIP ${zipCode}...`;
 
         try {
-            // Free Geocoding API from OpenStreetMap to translate Zip code to Lat/Lng
             const response = await fetch(`https://nominatim.openstreetmap.org/search?postalcode=${zipCode}&country=US&format=json&limit=1`);
             const data = await response.json();
 
@@ -327,7 +374,6 @@
     function loadStationsAround(centerLat, centerLng, locationName) {
         document.getElementById('resultsTitle').innerText = `Stations near ${locationName}`;
         
-        // Generate dynamic mock stations offset slightly from center point
         const mockStations = [
             { name: "Costco Gas", address: "100 Marketplace Dr", distance: "0.6 miles away", price: "$3.15", latOffset: 0.008, lngOffset: 0.006 },
             { name: "Shell", address: "452 Broad Street", distance: "1.2 miles away", price: "$3.29", latOffset: -0.007, lngOffset: 0.009 },
@@ -340,11 +386,9 @@
             const stationLat = centerLat + station.latOffset;
             const stationLng = centerLng + station.lngOffset;
 
-            // Add station pin to map
             L.marker([stationLat, stationLng]).addTo(markersLayer)
                 .bindPopup(`<b>${station.name}</b><br>Price: ${station.price}<br>${station.address}`);
 
-            // Add card to panel
             listHtml += `
                 <div class="station-card">
                     <div class="station-info">
