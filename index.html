@@ -1,529 +1,3427 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GasLocate.com | Real-Time Fuel Finder</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Leaflet CSS for 100% Free Interactive Maps -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    <style>
-        :root {
-            --bg-color: #ffffff;
-            --card-bg: #f8fafc;
-            --border-color: #e2e8f0;
-            --text-primary: #0f172a;
-            --text-secondary: #64748b;
-            --accent-red: #dc2626;
-            --accent-blue: #2563eb;
-            --success-bg: #ecfdf5;
-            --success-text: #059669;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b1220">
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+<title>GasLocate.com | Find Gas Stations Near You</title>
 
-        .container {
-            width: 100%;
-            max-width: 950px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
+<meta name="description" content="GasLocate.com helps you find nearby gas stations on a live map, sort by distance, filter by fuel type, get directions, and estimate trip and fill-up fuel costs.">
 
-        .header {
-            text-align: center;
-            margin-bottom: 25px;
-        }
+<meta name="keywords" content="gas stations near me, fuel finder, gas locator, diesel near me, gas map, fuel cost calculator, gasoline prices">
 
-        .brand-badge {
-            display: inline-block;
-            background: #fef2f2;
-            color: var(--accent-red);
-            border: 1px solid #fee2e2;
-            padding: 4px 12px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            border-radius: 20px;
-            margin-bottom: 12px;
-        }
+<meta name="robots" content="index,follow">
 
-        .title-container {
-            background-color: #0f172a;
-            display: inline-block;
-            padding: 12px 28px;
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            margin-bottom: 10px;
-        }
+<meta property="og:title" content="GasLocate.com | Find Gas Stations Near You">
 
-        h1 {
-            margin: 0;
-            font-size: 36px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-        }
+<meta property="og:description" content="Find nearby gas stations, compare distance, get directions, and estimate fuel costs.">
 
-        h1 .gas-red {
-            color: var(--accent-red);
-        }
+<meta property="og:type" content="website">
 
-        h1 .locate-white {
-            color: #ffffff;
-        }
+<link rel="preconnect" href="https://unpkg.com">
 
-        h1 .com-blue {
-            color: var(--accent-blue);
-        }
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
-        p.subtitle {
-            margin: 0;
-            color: var(--text-secondary);
-            font-size: 15px;
-        }
+<style>
 
-        .search-box {
-            display: flex;
-            gap: 10px;
-            background: var(--card-bg);
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 14px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            margin-bottom: 25px;
-        }
+:root{
+--bg:#eef3f8;
+--surface:#ffffff;
+--surface-2:#f8fafc;
+--text:#0f172a;
+--muted:#64748b;
+--line:#dbe3ec;
+--navy:#0b1220;
+--navy-2:#111c31;
+--blue:#1463ff;
+--blue-2:#0d4ecc;
+--red:#e11d2e;
+--green:#0f9f6e;
+--amber:#f59e0b;
+--shadow:0 12px 34px rgba(15,23,42,.10);
+--radius:18px;
+}
 
-        input[type="text"] {
-            flex: 1;
-            background: #ffffff;
-            border: 1px solid var(--border-color);
-            padding: 12px 16px;
-            font-size: 16px;
-            color: var(--text-primary);
-            border-radius: 10px;
-            outline: none;
-        }
+*{
+box-sizing:border-box
+}
 
-        input[type="text"]:focus {
-            border-color: var(--accent-blue);
-        }
+html{
+scroll-behavior:smooth
+}
 
-        button {
-            background: var(--accent-blue);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 10px;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
-            transition: background 0.2s;
-        }
+body{
+margin:0;
+font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+background:var(--bg);
+color:var(--text);
+line-height:1.5
+}
 
-        button:hover {
-            background: #1d4ed8;
-        }
+a{
+color:inherit
+}
 
-        .main-layout {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
+button,
+input,
+select{
+font:inherit
+}
 
-        @media (max-width: 768px) {
-            .main-layout {
-                grid-template-columns: 1fr;
-            }
-        }
+button{
+cursor:pointer
+}
 
-        #map {
-            height: 420px;
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
+/* HEADER */
 
-        .results-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            max-height: 420px;
-            overflow-y: auto;
-            padding-right: 4px;
-        }
+.topbar{
+position:sticky;
+top:0;
+z-index:1000;
+background:rgba(11,18,32,.96);
+color:#fff;
+border-bottom:1px solid rgba(255,255,255,.09);
+backdrop-filter:blur(10px)
+}
 
-        .results-panel h4 {
-            margin: 0 0 2px 0;
-            font-size: 15px;
-            color: var(--text-primary);
-        }
+.nav{
+max-width:1240px;
+margin:auto;
+padding:14px 18px;
+display:flex;
+gap:18px;
+align-items:center;
+justify-content:space-between
+}
 
-        .station-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            padding: 16px;
-            border-radius: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
+.brand{
+font-weight:900;
+letter-spacing:-1px;
+font-size:30px;
+white-space:nowrap
+}
 
-        .station-card:hover {
-            border-color: var(--accent-blue);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
+.brand .gas{
+color:#ff3548
+}
 
-        .station-info h3 {
-            margin: 0 0 4px 0;
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
+.brand .locate{
+color:#fff
+}
 
-        .station-info p {
-            margin: 0;
-            color: var(--text-secondary);
-            font-size: 13px;
-        }
+.brand .com{
+color:#4a8bff
+}
 
-        .station-meta {
-            margin-top: 6px;
-            font-size: 12px;
-            color: var(--accent-blue);
-            font-weight: 500;
-        }
+.navlinks{
+display:flex;
+gap:18px;
+align-items:center
+}
 
-        .price-tag {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--success-text);
-            background: var(--success-bg);
-            padding: 6px 12px;
-            border-radius: 10px;
-            border: 1px solid #a7f3d0;
-            text-align: center;
-        }
+.navlinks a{
+text-decoration:none;
+color:#d6deeb;
+font-weight:700;
+font-size:14px
+}
 
-        .footer {
-            margin-top: 40px;
-            text-align: center;
-            padding: 20px;
-            border-top: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            font-size: 13px;
-        }
+.navlinks a:hover{
+color:#fff
+}
 
-        .admin-link {
-            display: inline-block;
-            margin-top: 8px;
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 12px;
-            cursor: pointer;
-            text-decoration: underline;
-            padding: 0;
-            box-shadow: none;
-        }
+/* HERO */
 
-        .admin-link:hover {
-            color: var(--accent-blue);
-            background: none;
-        }
+.hero{
+position:relative;
+overflow:hidden;
+background:
+radial-gradient(circle at 82% 20%,rgba(20,99,255,.32),transparent 27%),
+radial-gradient(circle at 18% 85%,rgba(225,29,46,.25),transparent 29%),
+linear-gradient(135deg,#07111f 0%,#101c32 56%,#0b1220 100%);
+color:#fff
+}
 
-        /* Admin Modal Styling */
-        #adminModal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(4px);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
+.hero:before{
+content:"";
+position:absolute;
+inset:0;
+opacity:.12;
+background-image:
+linear-gradient(90deg,rgba(255,255,255,.25) 1px,transparent 1px),
+linear-gradient(rgba(255,255,255,.25) 1px,transparent 1px);
+background-size:40px 40px;
+pointer-events:none
+}
 
-        .admin-box {
-            background: #ffffff;
-            padding: 25px;
-            border-radius: 16px;
-            width: 90%;
-            max-width: 600px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            max-height: 80vh;
-            display: flex;
-            flex-direction: column;
-        }
+.hero-inner{
+position:relative;
+max-width:1240px;
+margin:auto;
+padding:70px 18px 58px;
+display:grid;
+grid-template-columns:1.2fr .8fr;
+gap:36px;
+align-items:center
+}
 
-        .admin-box h3 {
-            margin-top: 0;
-            color: var(--text-primary);
-        }
+.eyebrow{
+display:inline-flex;
+align-items:center;
+gap:8px;
+padding:7px 11px;
+border:1px solid rgba(255,255,255,.18);
+border-radius:999px;
+color:#d9e4f6;
+background:rgba(255,255,255,.05);
+font-size:12px;
+font-weight:800;
+text-transform:uppercase;
+letter-spacing:1px
+}
 
-        .visitor-list {
-            overflow-y: auto;
-            max-height: 400px;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 10px;
-            margin-top: 10px;
-            background: var(--card-bg);
-        }
+.hero h1{
+margin:16px 0 12px;
+max-width:750px;
+font-size:clamp(42px,6vw,76px);
+line-height:.98;
+letter-spacing:-2.5px
+}
 
-        .visitor-item {
-            padding: 10px;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 13px;
-            text-align: left;
-        }
+.hero h1 span{
+color:#5b94ff
+}
 
-        .visitor-item:last-child {
-            border-bottom: none;
-        }
+.hero p{
+max-width:720px;
+margin:0;
+color:#cbd6e6;
+font-size:18px
+}
 
-        .close-admin {
-            margin-top: 15px;
-            background: var(--text-secondary);
-            padding: 8px 16px;
-            font-size: 14px;
-        }
-    </style>
+.hero-actions{
+margin-top:26px;
+display:flex;
+gap:12px;
+flex-wrap:wrap
+}
+
+.btn{
+border:0;
+border-radius:12px;
+padding:13px 18px;
+font-weight:800;
+transition:.2s transform,.2s background,.2s box-shadow
+}
+
+.btn:hover{
+transform:translateY(-1px)
+}
+
+.btn-primary{
+background:var(--blue);
+color:white;
+box-shadow:0 8px 20px rgba(20,99,255,.25)
+}
+
+.btn-primary:hover{
+background:var(--blue-2)
+}
+
+.btn-light{
+background:#fff;
+color:var(--navy)
+}
+
+.btn-muted{
+background:#e9eef5;
+color:#22324a
+}
+
+/* FUEL DATA DISPLAY */
+
+.hero-card{
+background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.04));
+border:1px solid rgba(255,255,255,.16);
+border-radius:24px;
+padding:24px;
+box-shadow:0 24px 70px rgba(0,0,0,.25)
+}
+
+.price-board{
+background:#050a12;
+border:1px solid rgba(255,255,255,.12);
+border-radius:18px;
+overflow:hidden
+}
+
+.price-board .board-head{
+display:flex;
+justify-content:space-between;
+gap:12px;
+align-items:center;
+padding:13px 16px;
+background:#101827;
+border-bottom:1px solid rgba(255,255,255,.1)
+}
+
+.board-head strong{
+font-size:13px;
+text-transform:uppercase;
+letter-spacing:1px
+}
+
+.live-dot{
+display:inline-flex;
+align-items:center;
+gap:7px;
+color:#a8f3d2;
+font-size:12px;
+font-weight:800
+}
+
+.live-dot i{
+width:8px;
+height:8px;
+border-radius:50%;
+background:#34d399;
+box-shadow:0 0 0 5px rgba(52,211,153,.12)
+}
+
+.board-row{
+display:grid;
+grid-template-columns:1fr auto;
+gap:14px;
+align-items:center;
+padding:14px 16px;
+border-bottom:1px solid rgba(255,255,255,.08)
+}
+
+.board-row:last-child{
+border-bottom:0
+}
+
+.board-row span{
+color:#d8e0ea;
+font-weight:700
+}
+
+.board-row b{
+font-family:"Courier New",monospace;
+font-size:25px;
+color:#ffd64d;
+letter-spacing:1px
+}
+
+.board-note{
+padding:12px 16px;
+color:#aab6c6;
+font-size:12px;
+background:#0a101b
+}
+
+/* PAGE */
+
+.page{
+max-width:1240px;
+margin:auto;
+padding:28px 18px 50px
+}
+
+/* SEARCH */
+
+.search-shell{
+margin-top:-26px;
+position:relative;
+z-index:10;
+background:#fff;
+border:1px solid var(--line);
+border-radius:20px;
+box-shadow:var(--shadow);
+padding:18px
+}
+
+.search-grid{
+display:grid;
+grid-template-columns:1.6fr auto auto auto;
+gap:10px;
+align-items:end
+}
+
+.field label{
+display:block;
+margin-bottom:6px;
+font-size:12px;
+font-weight:800;
+color:#475569;
+text-transform:uppercase;
+letter-spacing:.7px
+}
+
+.field input,
+.field select{
+width:100%;
+min-height:48px;
+border:1px solid #cfd8e3;
+border-radius:11px;
+padding:11px 13px;
+background:#fff;
+color:var(--text);
+outline:none
+}
+
+.field input:focus,
+.field select:focus{
+border-color:var(--blue);
+box-shadow:0 0 0 3px rgba(20,99,255,.10)
+}
+
+.search-actions{
+display:flex;
+gap:10px
+}
+
+.statusbar{
+margin-top:12px;
+padding:10px 12px;
+border-radius:10px;
+background:#f7f9fc;
+border:1px solid #e3e9f1;
+color:#536174;
+font-size:13px
+}
+
+/* SECTIONS */
+
+.section{
+margin-top:28px
+}
+
+.section-head{
+display:flex;
+justify-content:space-between;
+gap:18px;
+align-items:end;
+margin-bottom:14px
+}
+
+.section-head h2{
+margin:0;
+font-size:25px;
+letter-spacing:-.6px
+}
+
+.section-head p{
+margin:4px 0 0;
+color:var(--muted);
+font-size:14px
+}
+
+/* MAP */
+
+.map-layout{
+display:grid;
+grid-template-columns:minmax(0,1.25fr) minmax(340px,.75fr);
+gap:18px
+}
+
+.panel{
+background:var(--surface);
+border:1px solid var(--line);
+border-radius:var(--radius);
+box-shadow:0 8px 24px rgba(15,23,42,.06);
+overflow:hidden
+}
+
+#map{
+height:610px;
+width:100%;
+background:#dde5ee
+}
+
+.map-legend{
+display:flex;
+gap:8px;
+align-items:center;
+flex-wrap:wrap;
+padding:11px 14px;
+border-top:1px solid var(--line);
+color:var(--muted);
+font-size:12px
+}
+
+.chip{
+padding:6px 9px;
+border-radius:999px;
+background:#f2f5f9;
+border:1px solid #e1e7ef;
+font-size:12px;
+font-weight:700
+}
+
+/* RESULTS */
+
+.results-panel{
+height:660px;
+display:flex;
+flex-direction:column
+}
+
+.results-top{
+padding:15px;
+border-bottom:1px solid var(--line);
+background:#fbfcfe
+}
+
+.results-top-row{
+display:flex;
+justify-content:space-between;
+gap:10px;
+align-items:center
+}
+
+.results-top h3{
+margin:0;
+font-size:17px
+}
+
+.count-badge{
+background:#eaf1ff;
+color:#0d4ecc;
+border:1px solid #cfe0ff;
+border-radius:999px;
+padding:4px 8px;
+font-weight:800;
+font-size:12px
+}
+
+.results-list{
+padding:12px;
+overflow:auto;
+display:flex;
+flex-direction:column;
+gap:10px
+}
+
+.station{
+border:1px solid #dce3ec;
+border-radius:14px;
+padding:14px;
+background:white;
+transition:.2s border,.2s transform,.2s box-shadow
+}
+
+.station:hover{
+border-color:#94b7ff;
+transform:translateY(-1px);
+box-shadow:0 8px 18px rgba(15,23,42,.07)
+}
+
+.station-top{
+display:flex;
+justify-content:space-between;
+gap:12px
+}
+
+.station h4{
+margin:0;
+font-size:16px
+}
+
+.station .brand-mini{
+font-size:11px;
+font-weight:900;
+color:#526175;
+text-transform:uppercase;
+letter-spacing:.7px
+}
+
+.station p{
+margin:6px 0 0;
+color:#66768a;
+font-size:13px
+}
+
+.distance{
+white-space:nowrap;
+font-weight:900;
+color:#0d4ecc;
+background:#eef4ff;
+border:1px solid #d6e4ff;
+border-radius:10px;
+padding:6px 8px;
+height:max-content
+}
+
+.station-meta{
+margin-top:10px;
+display:flex;
+gap:6px;
+flex-wrap:wrap
+}
+
+.station-meta span{
+font-size:11px;
+border:1px solid #e0e6ee;
+background:#f8fafc;
+padding:5px 7px;
+border-radius:999px;
+color:#526175;
+font-weight:700
+}
+
+.station-actions{
+display:flex;
+gap:8px;
+margin-top:12px;
+flex-wrap:wrap
+}
+
+.station-actions a,
+.station-actions button{
+text-decoration:none;
+border:0;
+background:#edf2f7;
+color:#24344a;
+font-weight:800;
+font-size:12px;
+padding:8px 10px;
+border-radius:9px
+}
+
+.station-actions a.primary{
+background:var(--blue);
+color:#fff
+}
+
+.empty{
+padding:28px 18px;
+text-align:center;
+color:var(--muted)
+}
+
+/* FEATURES */
+
+.cards-3{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:16px
+}
+
+.info-card{
+background:#fff;
+border:1px solid var(--line);
+border-radius:16px;
+box-shadow:0 8px 20px rgba(15,23,42,.05);
+padding:18px
+}
+
+.info-card .icon{
+width:42px;
+height:42px;
+border-radius:12px;
+display:grid;
+place-items:center;
+background:#eef4ff;
+color:#0d4ecc;
+font-size:21px;
+margin-bottom:12px
+}
+
+.info-card h3{
+margin:0 0 6px;
+font-size:17px
+}
+
+.info-card p{
+margin:0;
+color:var(--muted);
+font-size:13px
+}
+
+/* CALCULATORS */
+
+.tools-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:16px
+}
+
+.calc-card{
+padding:18px
+}
+
+.calc-card h3{
+margin:0 0 4px
+}
+
+.calc-card p{
+margin:0 0 14px;
+color:var(--muted);
+font-size:13px
+}
+
+.calc-grid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:10px
+}
+
+.calc-result{
+margin-top:14px;
+border-radius:12px;
+background:#07111f;
+color:#fff;
+padding:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:12px
+}
+
+.calc-result span{
+color:#bcc9db;
+font-size:13px
+}
+
+.calc-result strong{
+font-size:26px;
+color:#ffd64d
+}
+
+/* OFFICIAL PRICES */
+
+.official{
+background:linear-gradient(135deg,#fff,#f7faff);
+border:1px solid #dbe5f3;
+padding:18px
+}
+
+.official-row{
+display:grid;
+grid-template-columns:1fr auto;
+gap:18px;
+align-items:center
+}
+
+.official h3{
+margin:0 0 6px
+}
+
+.official p{
+margin:0;
+color:var(--muted);
+font-size:13px
+}
+
+.official .big-link{
+display:inline-flex;
+align-items:center;
+justify-content:center;
+text-decoration:none;
+background:#0f172a;
+color:#fff;
+padding:11px 14px;
+border-radius:10px;
+font-weight:800
+}
+
+.notice{
+margin-top:16px;
+padding:14px 16px;
+border-left:4px solid var(--amber);
+background:#fff8e8;
+color:#6d5311;
+border-radius:10px;
+font-size:13px
+}
+
+/* FOOTER */
+
+footer{
+background:#0b1220;
+color:#9eacbe;
+margin-top:36px
+}
+
+.footer-inner{
+max-width:1240px;
+margin:auto;
+padding:30px 18px
+}
+
+.footer-brand{
+font-size:24px;
+font-weight:900;
+color:white;
+margin-bottom:8px
+}
+
+.footer-inner p{
+margin:6px 0;
+font-size:12px;
+max-width:1000px
+}
+
+/* MAP POPUPS */
+
+.leaflet-popup-content-wrapper{
+border-radius:12px
+}
+
+.popup-name{
+font-weight:900;
+font-size:15px;
+margin-bottom:4px
+}
+
+.popup-meta{
+color:#566579;
+font-size:12px;
+line-height:1.45
+}
+
+.popup-link{
+display:inline-block;
+margin-top:8px;
+text-decoration:none;
+background:#1463ff;
+color:white!important;
+padding:7px 9px;
+border-radius:7px;
+font-weight:800;
+font-size:12px
+}
+
+/* RESPONSIVE */
+
+@media(max-width:1000px){
+
+.hero-inner{
+grid-template-columns:1fr
+}
+
+.hero-card{
+max-width:620px
+}
+
+.search-grid{
+grid-template-columns:1fr 1fr
+}
+
+.map-layout{
+grid-template-columns:1fr
+}
+
+#map{
+height:470px
+}
+
+.results-panel{
+height:auto;
+max-height:580px
+}
+
+.cards-3{
+grid-template-columns:1fr
+}
+
+.tools-grid{
+grid-template-columns:1fr
+}
+
+}
+
+@media(max-width:680px){
+
+.navlinks{
+display:none
+}
+
+.brand{
+font-size:26px
+}
+
+.hero-inner{
+padding:48px 16px 46px
+}
+
+.hero h1{
+letter-spacing:-1.7px
+}
+
+.search-grid{
+grid-template-columns:1fr
+}
+
+.search-actions{
+display:grid;
+grid-template-columns:1fr 1fr
+}
+
+.search-actions .btn{
+width:100%
+}
+
+.section-head{
+align-items:flex-start;
+flex-direction:column
+}
+
+#map{
+height:430px
+}
+
+.calc-grid{
+grid-template-columns:1fr
+}
+
+.official-row{
+grid-template-columns:1fr
+}
+
+.station-top{
+flex-direction:column
+}
+
+.distance{
+width:max-content
+}
+
+}
+
+</style>
 </head>
+
 <body>
 
-<div class="container">
-    <div class="header">
-        <span class="brand-badge">Live Fuel Network</span>
-        <div>
-            <div class="title-container">
-                <h1><span class="gas-red">Gas</span><span class="locate-white">Locate</span><span class="com-blue">.com</span></h1>
-            </div>
-        </div>
-        <p class="subtitle">Real-time local fuel pricing and interactive area mapping.</p>
-    </div>
-    
-    <div class="search-box">
-        <input type="text" id="zipInput" placeholder="Enter 5-digit ZIP code (e.g., 90210)..." maxlength="5">
-        <button onclick="searchByZip()">Search Area</button>
-    </div>
+<header class="topbar">
 
-    <div class="main-layout" id="contentArea">
-        <div id="map"></div>
-        <div class="results-panel" id="resultsPanel">
-            <h4 id="resultsTitle">Stations in Your Area</h4>
-            <div id="stationsList">
-                <!-- Dynamic cards load here -->
-            </div>
-        </div>
-    </div>
+<div class="nav">
+
+<div class="brand">
+<span class="gas">Gas</span><span class="locate">Locate</span><span class="com">.com</span>
 </div>
 
-<div class="footer">
-    <div>GasLocate.com &copy; 2026 &bull; All Rights Reserved</div>
-    <div>
-        <button class="admin-link" onclick="openAdminPanel()">⚙️ Admin Visitor Log</button>
-    </div>
+<nav class="navlinks" aria-label="Main navigation">
+
+<a href="#finder">Find Gas</a>
+
+<a href="#tools">Fuel Tools</a>
+
+<a href="#prices">Price Trends</a>
+
+<a href="#about">About</a>
+
+</nav>
+
 </div>
 
-<!-- Admin Password & Log Modal -->
-<div id="adminModal">
-    <div class="admin-box">
-        <h3>Visitor Log Admin Panel</h3>
-        <p style="font-size: 13px; color: var(--text-secondary); margin: 0 0 10px 0;">Unique visitor history tracked on this browser/domain.</p>
-        <div class="visitor-list" id="visitorLogContainer">
-            <!-- Visitor items load here -->
-        </div>
-        <button class="close-admin" onclick="closeAdminPanel()">Close Panel</button>
-    </div>
+</header>
+
+<section class="hero">
+
+<div class="hero-inner">
+
+<div>
+
+<span class="eyebrow">
+Live Station Location Network
+</span>
+
+<h1>
+Find fuel. <span>Compare the area.</span> Get there fast.
+</h1>
+
+<p>
+Locate nearby gas stations on a live map, sort by distance, filter by fuel type, open directions, and estimate your trip or fill-up cost—all without creating an account.
+</p>
+
+<div class="hero-actions">
+
+<button class="btn btn-primary" id="heroLocateBtn">
+Find Gas Near Me
+</button>
+
+<a class="btn btn-light" href="#tools" style="text-decoration:none">
+Fuel Cost Tools
+</a>
+
 </div>
 
-<!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+</div>
+
+<div class="hero-card" aria-label="Fuel data information">
+
+<div class="price-board">
+
+<div class="board-head">
+
+<strong>
+Fuel Data Board
+</strong>
+
+<span class="live-dot">
+<i></i>
+Station map live
+</span>
+
+</div>
+
+<div class="board-row">
+
+<span>
+Nearby station locations
+</span>
+
+<b>
+LIVE
+</b>
+
+</div>
+
+<div class="board-row">
+
+<span>
+Directions & distance
+</span>
+
+<b>
+LIVE
+</b>
+
+</div>
+
+<div class="board-row">
+
+<span>
+Individual pump prices
+</span>
+
+<b style="color:#ff8793">
+N/A
+</b>
+
+</div>
+
+<div class="board-note">
+GasLocate.com does not invent station prices. Pump prices require a licensed or participating price-data provider.
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<main class="page">
+
+<section class="search-shell" id="finder">
+
+<div class="search-grid">
+
+<div class="field">
+
+<label for="locationInput">
+ZIP code or city
+</label>
+
+<input
+id="locationInput"
+type="text"
+autocomplete="postal-code"
+placeholder="Enter ZIP code or city, state"
+>
+
+</div>
+
+<div class="field">
+
+<label for="radiusSelect">
+Search radius
+</label>
+
+<select id="radiusSelect">
+
+<option value="5">
+5 miles
+</option>
+
+<option value="10" selected>
+10 miles
+</option>
+
+<option value="25">
+25 miles
+</option>
+
+<option value="50">
+50 miles
+</option>
+
+</select>
+
+</div>
+
+<div class="field">
+
+<label for="fuelSelect">
+Fuel type
+</label>
+
+<select id="fuelSelect">
+
+<option value="all" selected>
+All fuel stations
+</option>
+
+<option value="diesel">
+Diesel available
+</option>
+
+<option value="lpg">
+LPG / Propane tagged
+</option>
+
+<option value="cng">
+CNG tagged
+</option>
+
+</select>
+
+</div>
+
+<div class="search-actions">
+
+<button class="btn btn-primary" id="searchBtn">
+Search Area
+</button>
+
+<button class="btn btn-muted" id="locateBtn">
+Use My Location
+</button>
+
+</div>
+
+</div>
+
+<div
+class="statusbar"
+id="statusBar"
+role="status"
+aria-live="polite"
+>
+Ready. Search by ZIP/city or choose “Use My Location.”
+</div>
+
+</section>
+
+<section class="section">
+
+<div class="section-head">
+
+<div>
+
+<h2>
+Nearby Fuel Stations
+</h2>
+
+<p>
+Station locations come from OpenStreetMap community data and may not include every station.
+</p>
+
+</div>
+
+<div class="field" style="min-width:190px">
+
+<label for="sortSelect">
+Sort stations
+</label>
+
+<select id="sortSelect">
+
+<option value="distance" selected>
+Closest first
+</option>
+
+<option value="name">
+Name A–Z
+</option>
+
+</select>
+
+</div>
+
+</div>
+
+<div class="map-layout">
+
+<div class="panel">
+
+<div
+id="map"
+aria-label="Interactive gas station map"
+></div>
+
+<div class="map-legend">
+
+<span class="chip">
+Blue marker: station
+</span>
+
+<span class="chip">
+Red marker: search center
+</span>
+
+<span class="chip">
+Tap a marker for directions
+</span>
+
+</div>
+
+</div>
+
+<div class="panel results-panel">
+
+<div class="results-top">
+
+<div class="results-top-row">
+
+<h3 id="resultsTitle">
+Stations in this area
+</h3>
+
+<span class="count-badge" id="stationCount">
+0 found
+</span>
+
+</div>
+
+</div>
+
+<div class="results-list" id="resultsList">
+
+<div class="empty">
+Search an area to load nearby stations.
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<section class="section">
+
+<div class="section-head">
+
+<div>
+
+<h2>
+Built for drivers
+</h2>
+
+<p>
+Useful features without registration, subscriptions, or hidden visitor logging.
+</p>
+
+</div>
+
+</div>
+
+<div class="cards-3">
+
+<div class="info-card">
+
+<div class="icon">
+📍
+</div>
+
+<h3>
+Live station locations
+</h3>
+
+<p>
+Search from your current position or by ZIP/city and see nearby fueling locations on an interactive map.
+</p>
+
+</div>
+
+<div class="info-card">
+
+<div class="icon">
+🧭
+</div>
+
+<h3>
+One-tap directions
+</h3>
+
+<p>
+Open driving directions to any listed station using your device's normal mapping service.
+</p>
+
+</div>
+
+<div class="info-card">
+
+<div class="icon">
+🔒
+</div>
+
+<h3>
+Privacy-first
+</h3>
+
+<p>
+No account is required. This version does not save visitor IP addresses or build a visitor tracking log.
+</p>
+
+</div>
+
+</div>
+
+</section>
+
+<section class="section" id="tools">
+
+<div class="section-head">
+
+<div>
+
+<h2>
+Fuel Cost Tools
+</h2>
+
+<p>
+Quick estimates for your next trip or fill-up.
+</p>
+
+</div>
+
+</div>
+
+<div class="tools-grid">
+
+<div class="panel calc-card">
+
+<h3>
+Trip Fuel Cost Calculator
+</h3>
+
+<p>
+Estimate how much fuel a drive will use and what it may cost.
+</p>
+
+<div class="calc-grid">
+
+<div class="field">
+
+<label for="tripMiles">
+Trip miles
+</label>
+
+<input
+id="tripMiles"
+type="number"
+min="0"
+step="1"
+placeholder="250"
+>
+
+</div>
+
+<div class="field">
+
+<label for="tripMpg">
+Vehicle MPG
+</label>
+
+<input
+id="tripMpg"
+type="number"
+min="1"
+step="0.1"
+placeholder="28"
+>
+
+</div>
+
+<div class="field">
+
+<label for="tripPrice">
+Fuel $ / gallon
+</label>
+
+<input
+id="tripPrice"
+type="number"
+min="0"
+step="0.001"
+placeholder="3.499"
+>
+
+</div>
+
+</div>
+
+<div class="calc-result">
+
+<span>
+Estimated trip fuel cost
+</span>
+
+<strong id="tripResult">
+$0.00
+</strong>
+
+</div>
+
+</div>
+
+<div class="panel calc-card">
+
+<h3>
+Fill-Up Cost Calculator
+</h3>
+
+<p>
+Estimate the cost of adding fuel to your tank.
+</p>
+
+<div class="calc-grid">
+
+<div class="field">
+
+<label for="tankSize">
+Tank size (gal)
+</label>
+
+<input
+id="tankSize"
+type="number"
+min="0"
+step="0.1"
+placeholder="16"
+>
+
+</div>
+
+<div class="field">
+
+<label for="tankPercent">
+Current tank %
+</label>
+
+<input
+id="tankPercent"
+type="number"
+min="0"
+max="100"
+step="1"
+placeholder="25"
+>
+
+</div>
+
+<div class="field">
+
+<label for="fillPrice">
+Fuel $ / gallon
+</label>
+
+<input
+id="fillPrice"
+type="number"
+min="0"
+step="0.001"
+placeholder="3.499"
+>
+
+</div>
+
+</div>
+
+<div class="calc-result">
+
+<span>
+Estimated cost to fill
+</span>
+
+<strong id="fillResult">
+$0.00
+</strong>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<section class="section" id="prices">
+
+<div class="section-head">
+
+<div>
+
+<h2>
+Official Fuel Price Trends
+</h2>
+
+<p>
+Use authoritative market data separately from individual station listings.
+</p>
+
+</div>
+
+</div>
+
+<div class="panel official">
+
+<div class="official-row">
+
+<div>
+
+<h3>
+U.S. Energy Information Administration (EIA)
+</h3>
+
+<p>
+The EIA publishes official U.S. retail gasoline and diesel price series. These figures are regional or national market indicators and should not be presented as the current pump price at a specific station.
+</p>
+
+</div>
+
+<a
+class="big-link"
+href="https://www.eia.gov/petroleum/gasdiesel/"
+target="_blank"
+rel="noopener"
+>
+View Official EIA Prices
+</a>
+
+</div>
+
+</div>
+
+<div class="notice">
+
+<strong>
+Price accuracy:
+</strong>
+
+GasLocate.com intentionally does not display invented or stale station-level prices. If a licensed real-time station-price API is connected later, the station cards can be upgraded to show verified price, fuel grade, and update time.
+
+</div>
+
+</section>
+
+<section class="section" id="about">
+
+<div class="section-head">
+
+<div>
+
+<h2>
+About GasLocate.com
+</h2>
+
+<p>
+A simple, free fuel-location tool designed to help drivers find stations and make faster fuel decisions.
+</p>
+
+</div>
+
+</div>
+
+<div class="cards-3">
+
+<div class="info-card">
+
+<div class="icon">
+⛽
+</div>
+
+<h3>
+Fuel types
+</h3>
+
+<p>
+Where map data includes tags, you can filter for diesel, LPG/propane, or CNG availability.
+</p>
+
+</div>
+
+<div class="info-card">
+
+<div class="icon">
+📱
+</div>
+
+<h3>
+Phone friendly
+</h3>
+
+<p>
+The layout is designed to work on phones, tablets, laptops, and desktop computers.
+</p>
+
+</div>
+
+<div class="info-card">
+
+<div class="icon">
+🆓
+</div>
+
+<h3>
+No registration
+</h3>
+
+<p>
+Drivers can search, map, calculate, and open directions without creating an account.
+</p>
+
+</div>
+
+</div>
+
+</section>
+
+</main>
+
+<footer>
+
+<div class="footer-inner">
+
+<div class="footer-brand">
+
+<span style="color:#ff3548">
+Gas
+</span>
+
+Locate
+
+<span style="color:#4a8bff">
+.com
+</span>
+
+</div>
+
+<p>
+GasLocate.com is an independent informational website. Station names, addresses, amenities, fuel-type tags, hours, and locations may be incomplete, outdated, or user-maintained through third-party mapping sources. Always verify current conditions before traveling.
+</p>
+
+<p>
+GasLocate.com does not currently provide verified real-time pump prices for individual stations. Any cost calculator results are estimates only. OpenStreetMap and other third-party names and data remain the property of their respective owners.
+</p>
+
+<p>
+© 2026 GasLocate.com. All rights reserved.
+</p>
+
+</div>
+
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
-    let map = null;
-    let markersLayer = null;
 
-    function initMap(lat, lng, zoom = 13) {
-        if (!map) {
-            map = L.map('map').setView([lat, lng], zoom);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; OpenStreetMap contributors'
-            }).addTo(map);
-            markersLayer = L.layerGroup().addTo(map);
-        } else {
-            map.setView([lat, lng], zoom);
-            markersLayer.clearLayers();
-        }
+"use strict";
 
-        L.marker([lat, lng], {
-            title: "Your Location"
-        }).addTo(markersLayer)
-          .bindPopup("<b>Your Location / Center</b>").openPopup();
-    }
+const DEFAULT_CENTER=[
+39.8283,
+-98.5795
+];
 
-    // JSON Visitor Logger & Local Storage Admin List
-    async function logVisitorAndInit() {
-        try {
-            const geoRes = await fetch('https://ipapi.co/json/');
-            const geoData = await geoRes.json();
+let map=null;
+let stationLayer=null;
+let centerLayer=null;
+let stationData=[];
+let currentCenter=null;
 
-            const visitorRecord = {
-                timestamp: new Date().toLocaleString(),
-                ip: geoData.ip || "Unknown",
-                city: geoData.city || "Unknown",
-                region: geoData.region || "Unknown",
-                country: geoData.country_name || "Unknown"
-            };
+const statusBar=
+document.getElementById(
+"statusBar"
+);
 
-            let storedLogs = JSON.parse(localStorage.getItem('gaslocate_visitors') || '[]');
-            storedLogs.unshift(visitorRecord);
-            if (storedLogs.length > 100) storedLogs.pop();
-            localStorage.setItem('gaslocate_visitors', JSON.stringify(storedLogs));
+const resultsList=
+document.getElementById(
+"resultsList"
+);
 
-        } catch (err) {
-            console.error("Logging error:", err);
-            let storedLogs = JSON.parse(localStorage.getItem('gaslocate_visitors') || '[]');
-            storedLogs.unshift({
-                timestamp: new Date().toLocaleString(),
-                ip: "Local/Direct",
-                city: "Local Area",
-                region: "VA",
-                country: "United States"
-            });
-            localStorage.setItem('gaslocate_visitors', JSON.stringify(storedLogs));
-        }
-    }
+const resultsTitle=
+document.getElementById(
+"resultsTitle"
+);
 
-    // Admin Panel Password Logic
-    function openAdminPanel() {
-        const password = prompt("Enter Admin Password:");
-        if (password === "admin123") {
-            const modal = document.getElementById('adminModal');
-            const container = document.getElementById('visitorLogContainer');
-            
-            let storedLogs = JSON.parse(localStorage.getItem('gaslocate_visitors') || '[]');
-            
-            if (storedLogs.length === 0) {
-                container.innerHTML = '<div class="visitor-item">No visitors recorded yet.</div>';
-            } else {
-                let html = '';
-                storedLogs.forEach((v, index) => {
-                    html += `
-                        <div class="visitor-item">
-                            <strong>#${storedLogs.length - index}</strong> &bull; 📅 <b>${v.timestamp}</b><br>
-                            📍 <b>${v.city}, ${v.region}</b> (${v.country}) &bull; IP: <code>${v.ip}</code>
-                        </div>
-                    `;
-                });
-                container.innerHTML = html;
-            }
+const stationCount=
+document.getElementById(
+"stationCount"
+);
 
-            modal.style.display = 'flex';
-        } else if (password !== null) {
-            alert("Incorrect password!");
-        }
-    }
+function setStatus(message){
 
-    function closeAdminPanel() {
-        document.getElementById('adminModal').style.display = 'none';
-    }
+statusBar.textContent=
+message;
 
-    window.addEventListener('DOMContentLoaded', () => {
-        logVisitorAndInit();
+}
 
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const userLat = position.coords.latitude;
-                    const userLng = position.coords.longitude;
-                    initMap(userLat, userLng, 14);
-                    loadStationsAround(userLat, userLng, "Your GPS Location");
-                },
-                (error) => {
-                    initMap(37.5407, -77.4360, 13);
-                    loadStationsAround(37.5407, -77.4360, "Default Area");
-                }
-            );
-        } else {
-            initMap(37.5407, -77.4360, 13);
-            loadStationsAround(37.5407, -77.4360, "Default Area");
-        }
-    });
+function escapeHtml(value){
 
-    async function searchByZip() {
-        const zipCode = document.getElementById('zipInput').value.trim();
-        if (zipCode.length !== 5 || isNaN(zipCode)) {
-            alert('Please enter a valid 5-digit zip code.');
-            return;
-        }
+return String(
+value??""
+)
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
 
-        document.getElementById('resultsTitle').innerText = `Locating ZIP ${zipCode}...`;
+}
 
-        try {
-            const response = await fetch(`https://nominatim.openstreetmap.org/search?postalcode=${zipCode}&country=US&format=json&limit=1`);
-            const data = await response.json();
+/* =====================================================
+   MAP INITIALIZATION
+===================================================== */
 
-            if (data && data.length > 0) {
-                const lat = parseFloat(data[0].lat);
-                const lon = parseFloat(data[0].lon);
+function initMap(){
 
-                initMap(lat, lon, 13);
-                loadStationsAround(lat, lon, `ZIP Code ${zipCode}`);
-            } else {
-                alert('Could not find coordinates for this ZIP code. Please try another.');
-            }
-        } catch (err) {
-            console.error('Geocoding error:', err);
-            alert('Error looking up zip code.');
-        }
-    }
+if(
+typeof L==="undefined"
+){
 
-    function loadStationsAround(centerLat, centerLng, locationName) {
-        document.getElementById('resultsTitle').innerText = `Stations near ${locationName}`;
-        
-        const mockStations = [
-            { name: "Costco Gas", address: "100 Marketplace Dr", distance: "0.6 miles away", price: "$3.15", latOffset: 0.008, lngOffset: 0.006 },
-            { name: "Shell", address: "452 Broad Street", distance: "1.2 miles away", price: "$3.29", latOffset: -0.007, lngOffset: 0.009 },
-            { name: "Chevron", address: "890 West End Ave", distance: "1.8 miles away", price: "$3.35", latOffset: 0.012, lngOffset: -0.005 },
-            { name: "Exxon", address: "1200 Capital Trail", distance: "2.4 miles away", price: "$3.42", latOffset: -0.010, lngOffset: -0.011 }
-        ];
+setStatus(
+"The map library could not load. Please check your internet connection and refresh the page."
+);
 
-        let listHtml = '';
-        mockStations.forEach(station => {
-            const stationLat = centerLat + station.latOffset;
-            const stationLng = centerLng + station.lngOffset;
+document.getElementById(
+"map"
+).innerHTML=
+'<div class="empty">Map unavailable.</div>';
 
-            L.marker([stationLat, stationLng]).addTo(markersLayer)
-                .bindPopup(`<b>${station.name}</b><br>Price: ${station.price}<br>${station.address}`);
+return;
 
-            listHtml += `
-                <div class="station-card">
-                    <div class="station-info">
-                        <h3>${station.name}</h3>
-                        <p>${station.address}</p>
-                        <div class="station-meta">📍 ${station.distance}</div>
-                    </div>
-                    <div class="price-tag">${station.price}</div>
-                </div>
-            `;
-        });
+}
 
-        document.getElementById('stationsList').innerHTML = listHtml;
-    }
+map=
+L.map(
+"map",
+{
+zoomControl:true
+}
+).setView(
+DEFAULT_CENTER,
+4
+);
+
+L.tileLayer(
+"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+{
+maxZoom:19,
+attribution:
+'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a>'
+}
+).addTo(
+map
+);
+
+stationLayer=
+L.layerGroup().addTo(
+map
+);
+
+centerLayer=
+L.layerGroup().addTo(
+map
+);
+
+setTimeout(
+function(){
+
+map.invalidateSize();
+
+},
+250
+);
+
+}
+
+/* =====================================================
+   DISTANCE
+===================================================== */
+
+function milesBetween(
+lat1,
+lng1,
+lat2,
+lng2
+){
+
+const R=
+3958.7613;
+
+const toRad=
+function(number){
+
+return number*
+Math.PI/
+180;
+
+};
+
+const dLat=
+toRad(
+lat2-lat1
+);
+
+const dLng=
+toRad(
+lng2-lng1
+);
+
+const a=
+
+Math.sin(
+dLat/2
+)**
+2
+
++
+
+Math.cos(
+toRad(lat1)
+)
+
+*
+
+Math.cos(
+toRad(lat2)
+)
+
+*
+
+Math.sin(
+dLng/2
+)**
+2;
+
+return R*
+2*
+Math.atan2(
+Math.sqrt(a),
+Math.sqrt(1-a)
+);
+
+}
+
+/* =====================================================
+   ADDRESS
+===================================================== */
+
+function formatAddress(tags){
+
+const street=
+
+[
+tags["addr:housenumber"],
+tags["addr:street"]
+]
+
+.filter(Boolean)
+.join(" ");
+
+const parts=
+
+[
+street,
+tags["addr:city"]||
+tags["addr:town"]||
+tags["addr:village"],
+tags["addr:state"],
+tags["addr:postcode"]
+]
+
+.filter(Boolean);
+
+return parts.join(
+", "
+);
+
+}
+
+/* =====================================================
+   STATION FEATURES
+===================================================== */
+
+function getFuelBadges(tags){
+
+const badges=[];
+
+if(
+tags["fuel:diesel"]==="yes"
+){
+
+badges.push(
+"Diesel"
+);
+
+}
+
+if(
+tags["fuel:lpg"]==="yes"
+){
+
+badges.push(
+"LPG"
+);
+
+}
+
+if(
+tags["fuel:cng"]==="yes"
+){
+
+badges.push(
+"CNG"
+);
+
+}
+
+if(
+tags.shop==="convenience"
+){
+
+badges.push(
+"Convenience store"
+);
+
+}
+
+if(
+tags.car_wash==="yes"
+){
+
+badges.push(
+"Car wash"
+);
+
+}
+
+if(
+tags.opening_hours==="24/7"
+){
+
+badges.push(
+"24/7"
+);
+
+}
+
+return badges;
+
+}
+
+function passesFuelFilter(tags){
+
+const filter=
+document.getElementById(
+"fuelSelect"
+).value;
+
+if(
+filter==="all"
+){
+
+return true;
+
+}
+
+if(
+filter==="diesel"
+){
+
+return tags[
+"fuel:diesel"
+]==="yes";
+
+}
+
+if(
+filter==="lpg"
+){
+
+return tags[
+"fuel:lpg"
+]==="yes";
+
+}
+
+if(
+filter==="cng"
+){
+
+return tags[
+"fuel:cng"
+]==="yes";
+
+}
+
+return true;
+
+}
+
+/* =====================================================
+   LOCATION SEARCH
+===================================================== */
+
+async function geocodeSearch(query){
+
+const url=
+
+"https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=us&q="+
+encodeURIComponent(
+query
+);
+
+const response=
+await fetch(
+url,
+{
+headers:{
+"Accept":
+"application/json"
+}
+}
+);
+
+if(
+!response.ok
+){
+
+throw new Error(
+"Location search failed"
+);
+
+}
+
+const data=
+await response.json();
+
+if(
+!Array.isArray(data)||
+!data.length
+){
+
+throw new Error(
+"Location not found"
+);
+
+}
+
+return{
+
+lat:
+Number(
+data[0].lat
+),
+
+lng:
+Number(
+data[0].lon
+),
+
+label:
+data[0].display_name||
+query
+
+};
+
+}
+
+/* =====================================================
+   LIVE GAS STATION SEARCH
+===================================================== */
+
+async function fetchStations(
+lat,
+lng,
+radiusMiles
+){
+
+const radiusMeters=
+Math.round(
+radiusMiles*
+1609.344
+);
+
+const query=`
+
+[out:json][timeout:30];
+
+(
+
+node["amenity"="fuel"](around:${radiusMeters},${lat},${lng});
+
+way["amenity"="fuel"](around:${radiusMeters},${lat},${lng});
+
+relation["amenity"="fuel"](around:${radiusMeters},${lat},${lng});
+
+);
+
+out center tags;
+
+`;
+
+const endpoints=[
+
+"https://overpass-api.de/api/interpreter",
+
+"https://overpass.kumi.systems/api/interpreter"
+
+];
+
+let lastError=null;
+
+for(
+const endpoint
+of endpoints
+){
+
+try{
+
+const response=
+await fetch(
+endpoint,
+{
+method:
+"POST",
+
+headers:{
+"Content-Type":
+"application/x-www-form-urlencoded;charset=UTF-8"
+},
+
+body:
+"data="+
+encodeURIComponent(
+query
+)
+}
+);
+
+if(
+!response.ok
+){
+
+throw new Error(
+"Fuel station server unavailable"
+);
+
+}
+
+return await response.json();
+
+}
+catch(error){
+
+lastError=
+error;
+
+}
+
+}
+
+throw lastError||
+new Error(
+"Fuel station search failed"
+);
+
+}
+
+/* =====================================================
+   NORMALIZE STATIONS
+===================================================== */
+
+function normalizeStations(
+raw,
+lat,
+lng
+){
+
+const seen=
+new Set();
+
+const items=[];
+
+(
+raw.elements||
+[]
+)
+.forEach(
+function(item){
+
+const sLat=
+
+typeof item.lat==="number"
+
+?
+
+item.lat
+
+:
+
+item.center?.lat;
+
+const sLng=
+
+typeof item.lon==="number"
+
+?
+
+item.lon
+
+:
+
+item.center?.lon;
+
+if(
+typeof sLat!=="number"||
+typeof sLng!=="number"
+){
+
+return;
+
+}
+
+const tags=
+item.tags||
+{};
+
+if(
+!passesFuelFilter(
+tags
+)
+){
+
+return;
+
+}
+
+const name=
+
+tags.name||
+tags.brand||
+tags.operator||
+"Fuel Station";
+
+const key=
+
+name.toLowerCase()
++
+"|"
++
+sLat.toFixed(5)
++
+"|"
++
+sLng.toFixed(5);
+
+if(
+seen.has(
+key
+)
+){
+
+return;
+
+}
+
+seen.add(
+key
+);
+
+items.push({
+
+id:
+item.id,
+
+name:
+name,
+
+brand:
+tags.brand||
+tags.operator||
+"",
+
+lat:
+sLat,
+
+lng:
+sLng,
+
+address:
+formatAddress(
+tags
+),
+
+phone:
+tags.phone||
+tags["contact:phone"]||
+"",
+
+website:
+tags.website||
+tags["contact:website"]||
+"",
+
+hours:
+tags.opening_hours||
+"",
+
+tags:
+tags,
+
+badges:
+getFuelBadges(
+tags
+),
+
+distance:
+milesBetween(
+lat,
+lng,
+sLat,
+sLng
+)
+
+});
+
+}
+);
+
+return items;
+
+}
+
+/* =====================================================
+   CUSTOM MAP ICONS
+===================================================== */
+
+function createStationIcon(){
+
+return L.divIcon({
+
+className:
+"",
+
+html:
+'<div style="width:28px;height:28px;border-radius:50% 50% 50% 8px;transform:rotate(-45deg);background:#1463ff;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,.3);display:grid;place-items:center"><span style="transform:rotate(45deg);font-size:13px">⛽</span></div>',
+
+iconSize:
+[30,30],
+
+iconAnchor:
+[15,30],
+
+popupAnchor:
+[0,-28]
+
+});
+
+}
+
+function createCenterIcon(){
+
+return L.divIcon({
+
+className:
+"",
+
+html:
+'<div style="width:20px;height:20px;border-radius:50%;background:#e11d2e;border:4px solid white;box-shadow:0 0 0 2px #e11d2e,0 3px 10px rgba(0,0,0,.25)"></div>',
+
+iconSize:
+[24,24],
+
+iconAnchor:
+[12,12]
+
+});
+
+}
+
+/* =====================================================
+   DIRECTIONS
+===================================================== */
+
+function mapDirectionsUrl(
+station
+){
+
+return
+
+"https://www.google.com/maps/dir/?api=1&destination="
++
+station.lat
++
+","
++
+station.lng;
+
+}
+
+/* =====================================================
+   DISPLAY STATIONS
+===================================================== */
+
+function renderStations(){
+
+if(
+!map||
+!stationLayer||
+!centerLayer
+){
+
+return;
+
+}
+
+stationLayer.clearLayers();
+
+centerLayer.clearLayers();
+
+if(
+currentCenter
+){
+
+L.marker(
+
+[
+currentCenter.lat,
+currentCenter.lng
+],
+
+{
+icon:
+createCenterIcon(),
+
+title:
+"Search Center"
+}
+
+)
+
+.addTo(
+centerLayer
+)
+
+.bindPopup(
+"<strong>Search center</strong>"
+);
+
+}
+
+const sort=
+document.getElementById(
+"sortSelect"
+).value;
+
+const sorted=[
+...stationData
+];
+
+if(
+sort==="name"
+){
+
+sorted.sort(
+function(a,b){
+
+return a.name.localeCompare(
+b.name
+);
+
+}
+);
+
+}
+else{
+
+sorted.sort(
+function(a,b){
+
+return a.distance-
+b.distance;
+
+}
+);
+
+}
+
+stationCount.textContent=
+
+sorted.length+
+" found";
+
+if(
+!sorted.length
+){
+
+resultsList.innerHTML=
+
+'<div class="empty">No matching fuel stations were found in this search area. Try increasing the radius or changing the fuel filter.</div>';
+
+return;
+
+}
+
+const bounds=
+L.latLngBounds(
+
+[
+[
+currentCenter.lat,
+currentCenter.lng
+]
+]
+
+);
+
+const fragment=
+document.createDocumentFragment();
+
+sorted.forEach(
+function(
+station,
+index
+){
+
+const address=
+
+station.address||
+
+"Address not listed in map data";
+
+const badges=
+
+station.badges.length
+
+?
+
+station.badges
+
+:
+
+[
+"Fuel station"
+];
+
+const popup=
+
+'<div class="popup-name">'
++
+escapeHtml(
+station.name
+)
++
+'</div>'
++
+'<div class="popup-meta">'
++
+escapeHtml(
+address
+)
++
+'<br>'
++
+station.distance.toFixed(1)
++
+' miles from search center'
++
+(
+station.hours
+
+?
+
+'<br>Hours: '
++
+escapeHtml(
+station.hours
+)
+
+:
+
+""
+)
++
+'</div>'
++
+'<a class="popup-link" href="'
++
+mapDirectionsUrl(
+station
+)
++
+'" target="_blank" rel="noopener">Directions</a>';
+
+const marker=
+
+L.marker(
+
+[
+station.lat,
+station.lng
+],
+
+{
+icon:
+createStationIcon(),
+
+title:
+station.name
+}
+
+)
+
+.addTo(
+stationLayer
+)
+
+.bindPopup(
+popup
+);
+
+station._marker=
+marker;
+
+bounds.extend(
+
+[
+station.lat,
+station.lng
+]
+
+);
+
+const card=
+document.createElement(
+"article"
+);
+
+card.className=
+"station";
+
+const metaHtml=
+
+badges.map(
+function(badge){
+
+return
+
+"<span>"
++
+escapeHtml(
+badge
+)
++
+"</span>";
+
+}
+).join("");
+
+const websiteButton=
+
+station.website
+
+?
+
+'<a href="'
++
+escapeHtml(
+station.website
+)
++
+'" target="_blank" rel="noopener">Website</a>'
+
+:
+
+"";
+
+card.innerHTML=
+
+'<div class="station-top">'
+
++
+
+'<div>'
+
++
+
+'<div class="brand-mini">'
++
+escapeHtml(
+station.brand||
+"Gas station"
+)
++
+'</div>'
+
++
+
+'<h4>'
++
+escapeHtml(
+station.name
+)
++
+'</h4>'
+
++
+
+'<p>'
++
+escapeHtml(
+address
+)
++
+'</p>'
+
++
+
+'</div>'
+
++
+
+'<div class="distance">'
++
+station.distance.toFixed(1)
++
+' mi</div>'
+
++
+
+'</div>'
+
++
+
+'<div class="station-meta">'
++
+metaHtml
++
+'</div>'
+
++
+
+'<div class="station-actions">'
+
++
+
+'<a class="primary" href="'
++
+mapDirectionsUrl(
+station
+)
++
+'" target="_blank" rel="noopener">Directions</a>'
+
++
+
+'<button type="button" data-station-index="'
++
+index
++
+'">Show on map</button>'
+
++
+
+websiteButton
+
++
+
+'</div>';
+
+card.querySelector(
+"button"
+)
+.addEventListener(
+"click",
+function(){
+
+map.setView(
+
+[
+station.lat,
+station.lng
+],
+
+16
+
+);
+
+marker.openPopup();
+
+document.getElementById(
+"map"
+)
+.scrollIntoView({
+
+behavior:
+"smooth",
+
+block:
+"center"
+
+});
+
+}
+);
+
+fragment.appendChild(
+card
+);
+
+}
+);
+
+resultsList.innerHTML=
+"";
+
+resultsList.appendChild(
+fragment
+);
+
+map.fitBounds(
+
+bounds.pad(
+.12
+),
+
+{
+maxZoom:
+14
+}
+
+);
+
+}
+
+/* =====================================================
+   RUN SEARCH
+===================================================== */
+
+async function runStationSearch(
+lat,
+lng,
+label
+){
+
+if(
+!map
+){
+
+setStatus(
+"Map is not available."
+);
+
+return;
+
+}
+
+const radius=
+
+Number(
+
+document.getElementById(
+"radiusSelect"
+).value
+
+||
+
+10
+
+);
+
+currentCenter={
+
+lat:
+lat,
+
+lng:
+lng,
+
+label:
+label
+
+};
+
+resultsTitle.textContent=
+
+"Stations near "
++
+label;
+
+stationCount.textContent=
+"Searching...";
+
+resultsList.innerHTML=
+
+'<div class="empty">Searching nearby fuel stations…</div>';
+
+setStatus(
+
+"Searching within "
++
+radius
++
+" miles of "
++
+label
++
+"…"
+
+);
+
+try{
+
+const raw=
+await fetchStations(
+lat,
+lng,
+radius
+);
+
+stationData=
+normalizeStations(
+raw,
+lat,
+lng
+);
+
+renderStations();
+
+setStatus(
+
+"Search complete. "
++
+stationData.length
++
+" matching fuel station"
++
+(
+stationData.length===1
+?
+""
+:
+"s"
+)
++
+" found within "
++
+radius
++
+" miles."
+
+);
+
+}
+catch(error){
+
+console.error(
+error
+);
+
+stationData=
+[];
+
+renderStations();
+
+setStatus(
+"The live station search service is temporarily unavailable. Please try again in a moment."
+);
+
+}
+
+}
+
+/* =====================================================
+   SEARCH BY ZIP OR CITY
+===================================================== */
+
+async function searchTypedLocation(){
+
+const value=
+
+document.getElementById(
+"locationInput"
+).value.trim();
+
+if(
+!value
+){
+
+setStatus(
+"Enter a ZIP code or city and state, then choose Search Area."
+);
+
+document.getElementById(
+"locationInput"
+).focus();
+
+return;
+
+}
+
+setStatus(
+
+"Locating "
++
+value
++
+"…"
+
+);
+
+try{
+
+const place=
+await geocodeSearch(
+value
+);
+
+await runStationSearch(
+place.lat,
+place.lng,
+value
+);
+
+}
+catch(error){
+
+console.error(
+error
+);
+
+setStatus(
+"That location could not be found. Try a 5-digit ZIP code or a city and state."
+);
+
+}
+
+}
+
+/* =====================================================
+   CURRENT LOCATION
+===================================================== */
+
+function useMyLocation(){
+
+if(
+!navigator.geolocation
+){
+
+setStatus(
+"Your browser does not support location services. Search by ZIP code or city instead."
+);
+
+return;
+
+}
+
+setStatus(
+"Requesting your location…"
+);
+
+navigator.geolocation.getCurrentPosition(
+
+function(position){
+
+runStationSearch(
+
+position.coords.latitude,
+
+position.coords.longitude,
+
+"your location"
+
+);
+
+},
+
+function(){
+
+setStatus(
+"Location permission was not available. You can still search by ZIP code or city."
+);
+
+},
+
+{
+enableHighAccuracy:
+false,
+
+timeout:
+15000,
+
+maximumAge:
+300000
+}
+
+);
+
+}
+
+/* =====================================================
+   TRIP CALCULATOR
+===================================================== */
+
+function updateTripCalculator(){
+
+const miles=
+Number(
+document.getElementById(
+"tripMiles"
+).value
+);
+
+const mpg=
+Number(
+document.getElementById(
+"tripMpg"
+).value
+);
+
+const price=
+Number(
+document.getElementById(
+"tripPrice"
+).value
+);
+
+const result=
+
+miles>0&&
+mpg>0&&
+price>=0
+
+?
+
+(
+miles/
+mpg
+)*
+price
+
+:
+
+0;
+
+document.getElementById(
+"tripResult"
+).textContent=
+
+"$"
++
+result.toFixed(
+2
+);
+
+}
+
+/* =====================================================
+   FILL-UP CALCULATOR
+===================================================== */
+
+function updateFillCalculator(){
+
+const size=
+Number(
+document.getElementById(
+"tankSize"
+).value
+);
+
+const percent=
+
+Math.min(
+
+100,
+
+Math.max(
+
+0,
+
+Number(
+document.getElementById(
+"tankPercent"
+).value
+)
+
+)
+
+);
+
+const price=
+Number(
+document.getElementById(
+"fillPrice"
+).value
+);
+
+const gallonsNeeded=
+
+size>0
+
+?
+
+size*
+(
+1-
+percent/
+100
+)
+
+:
+
+0;
+
+const result=
+
+gallonsNeeded>0&&
+price>=0
+
+?
+
+gallonsNeeded*
+price
+
+:
+
+0;
+
+document.getElementById(
+"fillResult"
+).textContent=
+
+"$"
++
+result.toFixed(
+2
+);
+
+}
+
+/* =====================================================
+   FILTER REFRESH
+===================================================== */
+
+function reapplyFilters(){
+
+if(
+!currentCenter
+){
+
+return;
+
+}
+
+runStationSearch(
+
+currentCenter.lat,
+
+currentCenter.lng,
+
+currentCenter.label||
+"selected area"
+
+);
+
+}
+
+/* =====================================================
+   INITIALIZE
+===================================================== */
+
+document.addEventListener(
+"DOMContentLoaded",
+function(){
+
+initMap();
+
+document.getElementById(
+"searchBtn"
+).addEventListener(
+"click",
+searchTypedLocation
+);
+
+document.getElementById(
+"locateBtn"
+).addEventListener(
+"click",
+useMyLocation
+);
+
+document.getElementById(
+"heroLocateBtn"
+).addEventListener(
+"click",
+function(){
+
+document.getElementById(
+"finder"
+)
+.scrollIntoView({
+
+behavior:
+"smooth",
+
+block:
+"start"
+
+});
+
+setTimeout(
+useMyLocation,
+350
+);
+
+}
+);
+
+document.getElementById(
+"locationInput"
+)
+.addEventListener(
+"keydown",
+function(event){
+
+if(
+event.key==="Enter"
+){
+
+searchTypedLocation();
+
+}
+
+}
+);
+
+document.getElementById(
+"sortSelect"
+)
+.addEventListener(
+"change",
+renderStations
+);
+
+document.getElementById(
+"fuelSelect"
+)
+.addEventListener(
+"change",
+reapplyFilters
+);
+
+document.getElementById(
+"radiusSelect"
+)
+.addEventListener(
+"change",
+function(){
+
+if(
+currentCenter
+){
+
+runStationSearch(
+
+currentCenter.lat,
+
+currentCenter.lng,
+
+currentCenter.label||
+"selected area"
+
+);
+
+}
+
+}
+);
+
+[
+"tripMiles",
+"tripMpg",
+"tripPrice"
+]
+.forEach(
+function(id){
+
+document.getElementById(
+id
+)
+.addEventListener(
+"input",
+updateTripCalculator
+);
+
+}
+);
+
+[
+"tankSize",
+"tankPercent",
+"fillPrice"
+]
+.forEach(
+function(id){
+
+document.getElementById(
+id
+)
+.addEventListener(
+"input",
+updateFillCalculator
+);
+
+}
+);
+
+}
+);
+
+window.addEventListener(
+"resize",
+function(){
+
+if(
+map
+){
+
+setTimeout(
+function(){
+
+map.invalidateSize();
+
+},
+100
+);
+
+}
+
+}
+);
+
 </script>
+
 </body>
 </html>
