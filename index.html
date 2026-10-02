@@ -73,8 +73,6 @@ button{
 cursor:pointer
 }
 
-/* HEADER */
-
 .topbar{
 position:sticky;
 top:0;
@@ -130,8 +128,6 @@ font-size:14px
 .navlinks a:hover{
 color:#fff
 }
-
-/* HERO */
 
 .hero{
 position:relative;
@@ -239,8 +235,6 @@ background:#e9eef5;
 color:#22324a
 }
 
-/* FUEL DATA DISPLAY */
-
 .hero-card{
 background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.04));
 border:1px solid rgba(255,255,255,.16);
@@ -321,15 +315,11 @@ font-size:12px;
 background:#0a101b
 }
 
-/* PAGE */
-
 .page{
 max-width:1240px;
 margin:auto;
 padding:28px 18px 50px
 }
-
-/* SEARCH */
 
 .search-shell{
 margin-top:-26px;
@@ -392,8 +382,6 @@ color:#536174;
 font-size:13px
 }
 
-/* SECTIONS */
-
 .section{
 margin-top:28px
 }
@@ -417,8 +405,6 @@ margin:4px 0 0;
 color:var(--muted);
 font-size:14px
 }
-
-/* MAP */
 
 .map-layout{
 display:grid;
@@ -459,8 +445,6 @@ border:1px solid #e1e7ef;
 font-size:12px;
 font-weight:700
 }
-
-/* RESULTS */
 
 .results-panel{
 height:660px;
@@ -601,8 +585,6 @@ text-align:center;
 color:var(--muted)
 }
 
-/* FEATURES */
-
 .cards-3{
 display:grid;
 grid-template-columns:repeat(3,1fr);
@@ -639,8 +621,6 @@ margin:0;
 color:var(--muted);
 font-size:13px
 }
-
-/* CALCULATORS */
 
 .tools-grid{
 display:grid;
@@ -690,8 +670,6 @@ font-size:26px;
 color:#ffd64d
 }
 
-/* OFFICIAL PRICES */
-
 .official{
 background:linear-gradient(135deg,#fff,#f7faff);
 border:1px solid #dbe5f3;
@@ -737,8 +715,6 @@ border-radius:10px;
 font-size:13px
 }
 
-/* FOOTER */
-
 footer{
 background:#0b1220;
 color:#9eacbe;
@@ -763,8 +739,6 @@ margin:6px 0;
 font-size:12px;
 max-width:1000px
 }
-
-/* MAP POPUPS */
 
 .leaflet-popup-content-wrapper{
 border-radius:12px
@@ -793,8 +767,6 @@ border-radius:7px;
 font-weight:800;
 font-size:12px
 }
-
-/* RESPONSIVE */
 
 @media(max-width:1000px){
 
@@ -931,7 +903,7 @@ Live Station Location Network
 </span>
 
 <h1>
-Find fuel. <span>Compare the area.</span> Get there fast.
+Find fuel. <span>Compare Prices.</span> Get there fast.
 </h1>
 
 <p>
@@ -1689,10 +1661,6 @@ value??""
 
 }
 
-/* =====================================================
-   MAP INITIALIZATION
-===================================================== */
-
 function initMap(){
 
 if(
@@ -1754,10 +1722,6 @@ map.invalidateSize();
 );
 
 }
-
-/* =====================================================
-   DISTANCE
-===================================================== */
 
 function milesBetween(
 lat1,
@@ -1823,10 +1787,6 @@ Math.sqrt(1-a)
 
 }
 
-/* =====================================================
-   ADDRESS
-===================================================== */
-
 function formatAddress(tags){
 
 const street=
@@ -1857,10 +1817,6 @@ return parts.join(
 );
 
 }
-
-/* =====================================================
-   STATION FEATURES
-===================================================== */
 
 function getFuelBadges(tags){
 
@@ -1979,10 +1935,6 @@ return true;
 
 }
 
-/* =====================================================
-   LOCATION SEARCH
-===================================================== */
-
 async function geocodeSearch(query){
 
 const url=
@@ -2046,10 +1998,6 @@ query
 };
 
 }
-
-/* =====================================================
-   LIVE GAS STATION SEARCH
-===================================================== */
 
 async function fetchStations(
 lat,
@@ -2146,10 +2094,6 @@ new Error(
 );
 
 }
-
-/* =====================================================
-   NORMALIZE STATIONS
-===================================================== */
 
 function normalizeStations(
 raw,
@@ -2312,10 +2256,6 @@ return items;
 
 }
 
-/* =====================================================
-   CUSTOM MAP ICONS
-===================================================== */
-
 function createStationIcon(){
 
 return L.divIcon({
@@ -2359,10 +2299,6 @@ iconAnchor:
 
 }
 
-/* =====================================================
-   DIRECTIONS
-===================================================== */
-
 function mapDirectionsUrl(
 station
 ){
@@ -2378,10 +2314,6 @@ station.lat
 station.lng;
 
 }
-
-/* =====================================================
-   DISPLAY STATIONS
-===================================================== */
 
 function renderStations(){
 
@@ -2814,10 +2746,6 @@ maxZoom:
 
 }
 
-/* =====================================================
-   RUN SEARCH
-===================================================== */
-
 async function runStationSearch(
 lat,
 lng,
@@ -2952,10 +2880,6 @@ setStatus(
 
 }
 
-/* =====================================================
-   SEARCH BY ZIP OR CITY
-===================================================== */
-
 async function searchTypedLocation(){
 
 const value=
@@ -3018,10 +2942,6 @@ setStatus(
 
 }
 
-/* =====================================================
-   CURRENT LOCATION
-===================================================== */
-
 function useMyLocation(){
 
 if(
@@ -3079,10 +2999,6 @@ maximumAge:
 
 }
 
-/* =====================================================
-   TRIP CALCULATOR
-===================================================== */
-
 function updateTripCalculator(){
 
 const miles=
@@ -3135,10 +3051,6 @@ result.toFixed(
 );
 
 }
-
-/* =====================================================
-   FILL-UP CALCULATOR
-===================================================== */
 
 function updateFillCalculator(){
 
@@ -3219,10 +3131,6 @@ result.toFixed(
 
 }
 
-/* =====================================================
-   FILTER REFRESH
-===================================================== */
-
 function reapplyFilters(){
 
 if(
@@ -3245,10 +3153,6 @@ currentCenter.label||
 );
 
 }
-
-/* =====================================================
-   INITIALIZE
-===================================================== */
 
 document.addEventListener(
 "DOMContentLoaded",
